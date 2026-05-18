@@ -1,0 +1,2616 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PG — Generador de Contenido</title>
+
+  <!-- PWA Support -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="POG">
+  <link rel="apple-touch-icon" href="./logo-light.png.png">
+  <link rel="manifest" href="./manifest.json">
+  <meta name="theme-color" content="#010B0E">
+
+  <link href="https://fonts.googleapis.com/css2?family=Jockey+One&family=Montserrat:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Jockey+One&family=Montserrat:wght@400;500;600;700&display=swap');
+
+    :root {
+      --bg: #010B0E;
+      --card: #001F14;
+      --border: #005030;
+      --border-hi: #15BA73;
+      --accent: #00D084;
+      --accent-dim: rgba(0, 208, 132, 0.08);
+      --red: #FF2D2D;
+      --red-dim: rgba(255, 45, 45, 0.08);
+      --text: #F0F2F0;
+      --muted: #5D7D70;
+      --muted-hi: #8BA69C
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
+
+    html,
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Montserrat', sans-serif;
+      font-size: 14px
+    }
+
+    /* LOADER */
+    #loader {
+      position: fixed;
+      inset: 0;
+      background: #080808;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      transition: opacity .5s
+    }
+
+    #loader.hide {
+      opacity: 0;
+      pointer-events: none
+    }
+
+    .loader-logo {
+      font-family: 'Jockey One', sans-serif;
+      font-size: 80px;
+      font-weight: 900;
+      letter-spacing: -2px
+    }
+
+    .loader-logo span {
+      color: var(--accent)
+    }
+
+    .loader-bar {
+      width: 120px;
+      height: 2px;
+      background: #222;
+      border-radius: 2px;
+      overflow: hidden
+    }
+
+    .loader-fill {
+      height: 100%;
+      width: 0;
+      background: var(--accent);
+      animation: lf 1.1s ease forwards
+    }
+
+    @keyframes lf {
+      to {
+        width: 100%
+      }
+    }
+
+    .loader-sub {
+      font-size: 9px;
+      letter-spacing: 4px;
+      color: #555;
+      text-transform: uppercase
+    }
+
+    /* API KEY SCREEN */
+    #apiScreen {
+      position: fixed;
+      inset: 0;
+      background: #080808;
+      z-index: 9990;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px;
+      gap: 20px
+    }
+
+    #apiScreen.hide {
+      display: none
+    }
+
+    .api-logo {
+      font-family: 'Jockey One', sans-serif;
+      font-size: 60px;
+      font-weight: 900;
+      letter-spacing: -2px;
+      margin-bottom: 8px
+    }
+
+    .api-logo span {
+      color: var(--accent)
+    }
+
+    .api-title {
+      font-family: 'Jockey One', sans-serif;
+      font-size: 24px;
+      font-weight: 700;
+      color: #EFEFEF;
+      text-align: center
+    }
+
+    .api-desc {
+      font-size: 13px;
+      color: #888;
+      text-align: center;
+      line-height: 1.7;
+      max-width: 380px
+    }
+
+    .api-desc a {
+      color: var(--accent);
+      text-decoration: none
+    }
+
+    .api-input {
+      background: #161616;
+      border: 1.5px solid #333;
+      color: #EFEFEF;
+      border-radius: 10px;
+      padding: 14px 16px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 14px;
+      width: 100%;
+      max-width: 400px;
+      outline: none;
+      transition: border-color .15s;
+      letter-spacing: .5px
+    }
+
+    .api-input:focus {
+      border-color: var(--accent)
+    }
+
+    .api-input::placeholder {
+      color: #555
+    }
+
+    .api-save-btn {
+      background: var(--accent);
+      color: #000;
+      border: none;
+      border-radius: 10px;
+      padding: 14px 32px;
+      font-family: 'Jockey One', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      cursor: pointer;
+      width: 100%;
+      max-width: 400px;
+      transition: all .15s
+    }
+
+    .api-save-btn:hover {
+      background: #f0ff1a
+    }
+
+    .api-note {
+      font-size: 11px;
+      color: #555;
+      text-align: center;
+      max-width: 380px;
+      line-height: 1.6
+    }
+
+    /* OVERLAY */
+    #overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .85);
+      z-index: 9998;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      backdrop-filter: blur(8px)
+    }
+
+    .ov-spin {
+      width: 44px;
+      height: 44px;
+      border: 2px solid #222;
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin .7s linear infinite
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg)
+      }
+    }
+
+    .ov-text {
+      font-size: 11px;
+      letter-spacing: 2px;
+      color: #666;
+      text-transform: uppercase;
+      text-align: center;
+      padding: 0 20px;
+      line-height: 1.8
+    }
+
+    /* TOAST */
+    #toast {
+      position: fixed;
+      top: 64px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1a0505;
+      border: 1px solid #FF2D2D;
+      color: #FF2D2D;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 12px;
+      z-index: 9997;
+      opacity: 0;
+      transition: opacity .3s;
+      pointer-events: none;
+      white-space: nowrap;
+      max-width: 90vw;
+      text-align: center
+    }
+
+    #toast.show {
+      opacity: 1
+    }
+
+    /* TOPBAR */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      border-bottom: 1px solid #222;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      height: 52px;
+      background: rgba(8, 8, 8, .98);
+      backdrop-filter: blur(12px)
+    }
+
+    .tb-logo {
+      font-family: 'Jockey One', sans-serif;
+      font-size: 26px;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      gap: 10px
+    }
+
+    .tb-mark {
+      width: 42px;
+      height: 32px;
+      background: var(--accent);
+      color: var(--bg);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      font-weight: 900;
+      font-family: 'Jockey One', sans-serif;
+      font-style: italic;
+      transform: skewX(-10deg)
+    }
+
+    .tb-sub {
+      font-size: 10px;
+      font-weight: 400;
+      color: var(--muted);
+      letter-spacing: 2px;
+      font-family: 'Montserrat', sans-serif;
+      align-self: flex-end;
+      margin-bottom: 3px
+    }
+
+    .tb-handle {
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 1px
+    }
+
+    .tb-right {
+      display: flex;
+      align-items: center;
+      gap: 12px
+    }
+
+    .change-key-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 6px;
+      padding: 5px 10px;
+      font-size: 10px;
+      cursor: pointer;
+      font-family: 'Montserrat', sans-serif;
+      transition: all .15s
+    }
+
+    .change-key-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent)
+    }
+
+    /* LAYOUT desktop */
+    @media(min-width:860px) {
+      .layout {
+        display: grid;
+        grid-template-columns: 340px 1fr;
+        height: calc(100vh - 52px);
+        overflow: hidden
+      }
+
+      .panel {
+        overflow-y: auto;
+        border-right: 1px solid #222;
+        display: flex;
+        flex-direction: column
+      }
+
+      .panel::-webkit-scrollbar {
+        width: 3px
+      }
+
+      .panel::-webkit-scrollbar-thumb {
+        background: #333;
+        border-radius: 2px
+      }
+
+      .stage {
+        overflow-y: auto;
+        padding: 28px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        align-items: center
+      }
+
+      .stage::-webkit-scrollbar {
+        width: 3px
+      }
+
+      .stage::-webkit-scrollbar-thumb {
+        background: #333
+      }
+    }
+
+    /* LAYOUT mobile */
+    @media(max-width:859px) {
+      .layout {
+        display: flex;
+        flex-direction: column
+      }
+
+      .panel {
+        display: flex;
+        flex-direction: column;
+        border-bottom: 1px solid #222
+      }
+
+      .stage {
+        padding: 20px 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        align-items: center
+      }
+    }
+
+    /* PANEL */
+    .section {
+      padding: 16px 20px;
+      border-bottom: 1px solid #222;
+      flex-shrink: 0
+    }
+
+    .sec-label {
+      font-size: 9px;
+      letter-spacing: 3px;
+      color: #555;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      display: block
+    }
+
+    /* TYPE */
+    .type-tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 6px
+    }
+
+    .ttab {
+      background: #161616;
+      border: 1.5px solid #222;
+      color: #888;
+      border-radius: 8px;
+      padding: 10px 6px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 500;
+      transition: all .15s;
+      -webkit-appearance: none;
+      appearance: none
+    }
+
+    .ttab .ico {
+      font-size: 18px
+    }
+
+    .ttab.on {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #000;
+      font-weight: 700
+    }
+
+    /* PILARES */
+    .pilar-list {
+      display: flex;
+      flex-direction: column;
+      gap: 5px
+    }
+
+    .pilar-btn {
+      background: #161616;
+      border: 1.5px solid #222;
+      color: #888;
+      border-radius: 8px;
+      padding: 9px 12px;
+      cursor: pointer;
+      font-size: 12px;
+      font-family: 'Montserrat', sans-serif;
+      text-align: left;
+      transition: all .15s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 500;
+      width: 100%;
+      -webkit-appearance: none;
+      appearance: none
+    }
+
+    .pilar-btn .pip {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #555;
+      flex-shrink: 0;
+      transition: background .15s
+    }
+
+    .pilar-btn.on {
+      border-color: var(--accent);
+      background: rgba(0, 208, 132, 0.08);
+      color: #EFEFEF
+    }
+
+    .pilar-btn.on .pip {
+      background: var(--accent)
+    }
+
+    /* TOPICS */
+    #topicWrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px
+    }
+
+    .chip {
+      background: #161616;
+      border: 1.5px solid #222;
+      color: #888;
+      border-radius: 20px;
+      padding: 6px 12px;
+      font-size: 11px;
+      cursor: pointer;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 500;
+      transition: all .15s;
+      -webkit-appearance: none;
+      appearance: none;
+      display: inline-block
+    }
+
+    .chip.on {
+      background: rgba(0, 208, 132, 0.1);
+      border-color: var(--accent);
+      color: var(--accent)
+    }
+
+    .ai-btn {
+      background: rgba(0, 208, 132, 0.08);
+      border: 1px solid rgba(0, 208, 132, 0.3);
+      color: var(--accent);
+      border-radius: 6px;
+      padding: 5px 11px;
+      font-size: 10px;
+      cursor: pointer;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 600;
+      transition: all .15s;
+      -webkit-appearance: none;
+      appearance: none
+    }
+
+    .ai-btn:disabled {
+      opacity: .4;
+      cursor: not-allowed
+    }
+
+    /* TONE */
+    .tone-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5px
+    }
+
+    .tone-btn {
+      background: #161616;
+      border: 1.5px solid #222;
+      color: #888;
+      border-radius: 8px;
+      padding: 9px 10px;
+      cursor: pointer;
+      font-size: 11px;
+      font-family: 'Montserrat', sans-serif;
+      text-align: left;
+      transition: all .15s;
+      width: 100%;
+      -webkit-appearance: none;
+      appearance: none
+    }
+
+    .tone-btn strong {
+      display: block;
+      color: #EFEFEF;
+      font-size: 12px;
+      margin-bottom: 2px
+    }
+
+    .tone-btn.on {
+      border-color: #FF2D2D;
+      background: rgba(255, 45, 45, 0.08)
+    }
+
+    .tone-btn.on strong {
+      color: #FF2D2D
+    }
+
+    /* CUSTOM */
+    .custom-ta {
+      background: #161616;
+      border: 1.5px solid #222;
+      color: #EFEFEF;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 13px;
+      width: 100%;
+      resize: none;
+      outline: none;
+      transition: border-color .15s;
+      line-height: 1.5
+    }
+
+    .custom-ta:focus {
+      border-color: var(--accent)
+    }
+
+    .custom-ta::placeholder {
+      color: #555
+    }
+
+    /* GEN BTN */
+    .gen-section {
+      padding: 16px 20px;
+      flex-shrink: 0
+    }
+
+    @media(max-width:859px) {
+      .gen-section {
+        position: sticky;
+        bottom: 0;
+        background: #080808;
+        border-top: 1px solid #222;
+        z-index: 50;
+        padding: 12px 16px
+      }
+    }
+
+    .gen-btn {
+      width: 100%;
+      background: var(--accent);
+      color: #000;
+      border: none;
+      border-radius: 10px;
+      padding: 15px;
+      font-family: 'Jockey One', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: all .15s;
+      -webkit-appearance: none;
+      appearance: none
+    }
+
+    .gen-btn:disabled {
+      background: #222;
+      color: #555;
+      cursor: not-allowed
+    }
+
+    /* EMPTY */
+    .empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      padding: 60px 0;
+      width: 100%;
+      color: #555;
+      text-align: center
+    }
+
+    .empty-mark {
+      font-family: 'Jockey One', sans-serif;
+      font-size: 96px;
+      font-weight: 900;
+      color: #1a1a1a;
+      line-height: 1
+    }
+
+    .empty-text {
+      font-size: 13px;
+      line-height: 1.7
+    }
+
+    /* STAGE HEADER */
+    .stage-header {
+      width: 100%;
+      max-width: 540px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0
+    }
+
+    .stage-title {
+      font-family: 'Jockey One', sans-serif;
+      font-size: 32px;
+      font-weight: 700
+    }
+
+    /* CANVAS */
+    .canvas-wrap {
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, .6);
+      flex-shrink: 0
+    }
+
+    /* POST */
+    .post-sq {
+      background: #010B0E;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 32px;
+      position: relative;
+      overflow: hidden
+    }
+
+    .post-img {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+      z-index: 1
+    }
+
+    .post-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, rgba(1, 11, 14, 0.5) 0%, rgba(1, 11, 14, 0.25) 30%, rgba(1, 11, 14, 0.6) 65%, rgba(1, 11, 14, 0.98) 100%);
+      z-index: 2
+    }
+
+    .light-mode .post-overlay {
+      background: linear-gradient(to bottom, rgba(242, 245, 243, 0.05) 0%, rgba(242, 245, 243, 0.3) 30%, rgba(242, 245, 243, 0.8) 55%, #F2F5F3 90%);
+    }
+
+    .car-bg {
+      position: absolute;
+      inset: 0;
+      z-index: 0
+    }
+
+    .bg-grid {
+      position: absolute;
+      inset: 0;
+      z-index: 3;
+      opacity: 0.2
+    }
+
+    .post-sq .pilar-tag,
+    .post-sq .headline,
+    .post-sq .sub,
+    .post-sq .footer,
+    .post-sq .left-bar,
+    .car-content {
+      position: relative;
+      z-index: 10
+    }
+
+    .post-sq .deco,
+    .post-story .deco-q {
+      z-index: 5
+    }
+
+    .refresh-img {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      z-index: 20;
+      background: rgba(0, 0, 0, 0.5);
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 16px;
+      transition: all .15s;
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(255, 255, 255, 0.2)
+    }
+
+    .refresh-img:hover {
+      background: var(--accent);
+      color: #000;
+      transform: rotate(90deg)
+    }
+
+    .light-mode .refresh-img {
+      background: rgba(255, 255, 255, 0.7);
+      color: #000;
+      border-color: rgba(0, 0, 0, 0.1)
+    }
+
+    .post-logo {
+      position: absolute;
+      top: 28px;
+      left: 28px;
+      height: 30px;
+      width: auto;
+      z-index: 15;
+      pointer-events: none;
+      object-fit: contain
+    }
+
+    .post-story .post-logo {
+      top: 28px;
+      left: 22px
+    }
+
+    .post-sq .pilar-tag {
+      font-size: 11px;
+      letter-spacing: 4px;
+      color: var(--accent);
+      text-transform: uppercase;
+      font-weight: 700;
+      margin-bottom: 8px;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+    }
+
+    .post-sq.light-mode {
+      background: #F2F5F3;
+    }
+
+    .post-sq.light-mode .bg-grid {
+      display: block !important;
+      background-image: linear-gradient(rgba(0, 168, 107, 0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 168, 107, 0.04) 1px, transparent 1px);
+      opacity: 1;
+    }
+
+    .post-sq .headline {
+      font-family: 'Jockey One', sans-serif;
+      font-weight: 900;
+      line-height: .95;
+      color: #fff;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8), 0 4px 20px rgba(0, 0, 0, 0.4);
+    }
+
+    @media(min-width:860px) {
+      .post-sq .headline {
+        font-size: 46px
+      }
+    }
+
+    @media(max-width:859px) {
+      .post-sq .headline {
+        font-size: clamp(24px, 7vw, 42px)
+      }
+    }
+
+    .post-sq .sub {
+      font-size: 14px;
+      color: #E2E8F0;
+      line-height: 1.6;
+      margin-bottom: 20px;
+      position: relative;
+      z-index: 10;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9), 0 2px 10px rgba(0, 0, 0, 0.6);
+      font-weight: 500;
+    }
+
+    .post-sq .footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+      z-index: 10
+    }
+
+    .post-sq .handle {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.7);
+      letter-spacing: 1px;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+      font-weight: 600;
+    }
+
+    .post-sq .pg-mark {
+      font-family: 'Jockey One', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: rgba(0, 208, 132, .35);
+      letter-spacing: 2px
+    }
+
+    /* LIGHT MODE OVERRIDES */
+    .post-sq.light-mode,
+    .post-story.light-mode,
+    .post-car.light-mode {
+      background: #F2F5F3;
+    }
+
+    .post-sq.light-mode .headline,
+    .post-story.light-mode .s-q,
+    .post-car.light-mode .car-title,
+    .light-mode .closing-title {
+      color: #0A1310;
+      text-shadow: none;
+    }
+
+    .post-sq.light-mode .sub,
+    .post-story.light-mode .s-body,
+    .post-car.light-mode .car-body,
+    .light-mode .closing-body {
+      color: #3C4E49;
+      text-shadow: none;
+    }
+
+    .post-sq.light-mode .handle,
+    .post-story.light-mode .s-handle,
+    .post-car.light-mode .car-handle {
+      color: rgba(15, 26, 23, 0.45);
+      text-shadow: none;
+    }
+
+    .post-sq.light-mode .pilar-tag,
+    .post-car.light-mode .car-tag {
+      color: #008055;
+      text-shadow: none;
+    }
+
+    .post-sq.light-mode .deco,
+    .post-story.light-mode .deco-q {
+      color: rgba(0, 168, 107, 0.05);
+    }
+
+    .post-sq.light-mode .bg-grid {
+      display: block !important;
+      background-image: linear-gradient(rgba(0, 168, 107, 0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 168, 107, 0.04) 1px, transparent 1px);
+      opacity: 1;
+    }
+
+    .post-sq.light-mode .left-bar {
+      background: #008055;
+    }
+
+    .post-sq.light-mode .pg-mark {
+      color: rgba(0, 168, 107, 0.3);
+    }
+
+    .post-car.light-mode .car-dot {
+      background: rgba(15, 26, 23, 0.12);
+    }
+
+    .post-car.light-mode .car-dot.on {
+      background: #008055;
+    }
+
+    .post-car.light-mode .car-num {
+      color: rgba(15, 26, 23, 0.5);
+    }
+
+    .post-car.light-mode .car-tag {
+      color: #008055;
+    }
+
+    /* STORY */
+    .post-story {
+      background: #010B0E;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+      padding: 80px 24px 95px 24px;
+      box-sizing: border-box;
+    }
+
+    @media(min-width:860px) {
+      .post-story {
+        width: 270px;
+        height: 480px;
+      }
+    }
+
+    @media(max-width:859px) {
+      .post-story {
+        width: calc((100vw - 32px)*.58);
+        max-width: 240px;
+        height: calc((100vw - 32px)*1.03);
+        max-height: 430px;
+        padding: 70px 18px 85px 18px;
+      }
+    }
+
+    .post-story .blob1 {
+      position: absolute;
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      filter: blur(70px);
+      background: radial-gradient(circle, rgba(0, 208, 132, .12) 0%, transparent 70%);
+      top: -60px;
+      left: -60px;
+      pointer-events: none
+    }
+
+    .post-story .blob2 {
+      position: absolute;
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      filter: blur(70px);
+      background: radial-gradient(circle, rgba(255, 45, 45, .07) 0%, transparent 70%);
+      bottom: -40px;
+      right: -40px;
+      pointer-events: none
+    }
+
+    .post-story .deco-q {
+      position: absolute;
+      font-family: 'Jockey One', sans-serif;
+      font-size: 180px;
+      font-weight: 900;
+      color: rgba(255, 255, 255, .025);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      user-select: none;
+      pointer-events: none;
+      line-height: 1;
+      z-index: 5;
+    }
+
+    .post-story .story-header {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      width: 100%;
+      margin-bottom: 8px;
+    }
+
+    .post-story .story-logo {
+      height: 20px;
+      width: auto;
+      object-fit: contain;
+      filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
+    }
+
+    .post-story .story-content {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      flex: 1;
+      margin-bottom: 10px;
+    }
+
+    .post-story .story-footer {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+    }
+
+    .post-story .s-label {
+      font-size: 8px;
+      letter-spacing: 3px;
+      color: var(--accent);
+      text-transform: uppercase;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .post-story .s-q {
+      font-family: 'Jockey One', sans-serif;
+      font-weight: 900;
+      line-height: .95;
+      color: #fff;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8), 0 4px 18px rgba(0, 0, 0, 0.4);
+    }
+
+    @media(min-width:860px) {
+      .post-story .s-q {
+        font-size: 32px
+      }
+    }
+
+    @media(max-width:859px) {
+      .post-story .s-q {
+        font-size: clamp(16px, 4.5vw, 26px)
+      }
+    }
+
+    .post-story .s-body {
+      font-size: 11px;
+      color: #E2E8F0;
+      line-height: 1.55;
+      margin-bottom: 8px;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9), 0 2px 10px rgba(0, 0, 0, 0.5);
+      font-weight: 500;
+    }
+
+    .post-story .s-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--accent);
+      color: #000;
+      border-radius: 20px;
+      padding: 6px 12px;
+      font-size: 9px;
+      font-weight: 700;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(0, 208, 132, 0.2);
+    }
+
+    .post-story .s-handle {
+      font-size: 9px;
+      color: rgba(255, 255, 255, 0.65);
+      letter-spacing: 1.5px;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+      font-weight: 600;
+      margin-top: 45px;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    /* STORY LIGHT MODE OVERRIDES */
+    .post-story.light-mode {
+      background: #F2F5F3;
+    }
+
+    .post-story.light-mode .s-q {
+      color: #0A1310;
+      text-shadow: none;
+    }
+
+    .post-story.light-mode .s-body {
+      color: #3C4E49;
+      text-shadow: none;
+    }
+
+    .post-story.light-mode .s-handle {
+      color: rgba(15, 26, 23, 0.65);
+      text-shadow: none;
+    }
+
+    .post-story.light-mode .s-cta {
+      background: #008055;
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(0, 128, 85, 0.15);
+    }
+
+    .post-story.light-mode .deco-q {
+      color: rgba(0, 168, 107, 0.03);
+    }
+
+    /* STORY BACK-OVERLAYS FOR MAXIMUM CONTRAST */
+    .post-story .post-overlay {
+      background: linear-gradient(to bottom, rgba(1, 11, 14, 0.75) 0%, rgba(1, 11, 14, 0.5) 40%, rgba(1, 11, 14, 0.75) 75%, rgba(1, 11, 14, 0.98) 100%);
+    }
+
+    .post-story.light-mode .post-overlay {
+      background: linear-gradient(to bottom, rgba(242, 245, 243, 0.75) 0%, rgba(242, 245, 243, 0.6) 40%, rgba(242, 245, 243, 0.8) 75%, #F2F5F3 100%);
+    }
+
+    /* CAROUSEL */
+    .post-car {
+      background: #080808;
+      position: relative;
+      overflow: hidden
+    }
+
+    @media(min-width:860px) {
+
+      .post-sq,
+      .post-car {
+        width: 480px;
+        height: 480px
+      }
+    }
+
+    @media(max-width:859px) {
+
+      .post-sq,
+      .post-car {
+        width: calc(100vw - 32px);
+        max-width: 420px;
+        height: calc(100vw - 32px);
+        max-height: 420px
+      }
+    }
+
+    .car-bg {
+      position: absolute;
+      inset: 0
+    }
+
+    .car-content {
+      position: relative;
+      z-index: 2;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 32px
+    }
+
+    @media(max-width:859px) {
+      .car-content {
+        padding: 20px
+      }
+    }
+
+    .car-num {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      font-family: 'Jockey One', sans-serif;
+      font-size: 13px;
+      color: rgba(255, 255, 255, .25);
+      z-index: 3;
+      letter-spacing: 1px
+    }
+
+    .car-prog {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 12px
+    }
+
+    .car-dot {
+      height: 2px;
+      flex: 1;
+      border-radius: 1px;
+      background: rgba(255, 255, 255, .15);
+      transition: background .3s
+    }
+
+    .car-dot.on {
+      background: var(--accent)
+    }
+
+    .car-tag {
+      font-size: 8px;
+      letter-spacing: 4px;
+      color: var(--accent);
+      text-transform: uppercase;
+      font-weight: 600;
+      margin-bottom: 7px
+    }
+
+    .car-title {
+      font-family: 'Jockey One', sans-serif;
+      font-weight: 900;
+      line-height: .95;
+      color: #fff;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8), 0 4px 18px rgba(0, 0, 0, 0.4);
+    }
+
+    @media(min-width:860px) {
+      .car-title {
+        font-size: 38px
+      }
+    }
+
+    @media(max-width:859px) {
+      .car-title {
+        font-size: clamp(22px, 6vw, 34px)
+      }
+    }
+
+    .car-body {
+      font-size: 13px;
+      color: #E2E8F0;
+      line-height: 1.6;
+      margin-bottom: 12px;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9), 0 2px 10px rgba(0, 0, 0, 0.5);
+      font-weight: 500;
+    }
+
+    .car-handle {
+      font-size: 10px;
+      color: rgba(255, 255, 255, 0.65);
+      letter-spacing: 1px;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+      font-weight: 600;
+    }
+
+    .car-arrow {
+      position: absolute;
+      bottom: 24px;
+      right: 24px;
+      font-size: 18px;
+      opacity: .3;
+      z-index: 3
+    }
+
+    /* NAV */
+    .car-nav {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0
+    }
+
+    .nav-b {
+      background: #161616;
+      border: 1px solid #222;
+      color: #EFEFEF;
+      border-radius: 6px;
+      padding: 7px 14px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all .15s;
+      -webkit-appearance: none;
+      appearance: none
+    }
+
+    .nav-b:hover {
+      border-color: var(--accent)
+    }
+
+    .nav-ind {
+      font-size: 11px;
+      color: #555;
+      letter-spacing: 1px;
+      min-width: 50px;
+      text-align: center
+    }
+
+    /* CAPTION */
+    .caption-box {
+      background: #161616;
+      border: 1px solid #222;
+      border-radius: 10px;
+      padding: 18px;
+      width: 100%;
+      max-width: 540px;
+      flex-shrink: 0
+    }
+
+    .cap-label {
+      font-size: 9px;
+      letter-spacing: 3px;
+      color: #555;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      display: block
+    }
+
+    .cap-text {
+      font-size: 12px;
+      line-height: 1.8;
+      color: #EFEFEF;
+      white-space: pre-wrap
+    }
+
+    .cap-copy {
+      margin-top: 12px;
+      background: transparent;
+      border: 1px solid #222;
+      color: #888;
+      border-radius: 5px;
+      padding: 6px 12px;
+      font-size: 10px;
+      cursor: pointer;
+      transition: all .15s;
+      font-family: 'Montserrat', sans-serif;
+      letter-spacing: 1px;
+      -webkit-appearance: none;
+      appearance: none
+    }
+
+    .cap-copy:hover {
+      border-color: var(--accent);
+      color: var(--accent)
+    }
+
+    .dl-btn {
+      background: var(--accent);
+      color: #000;
+      border: none;
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-family: 'Jockey One', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all .15s
+    }
+
+    .dl-btn:hover {
+      background: #00f098;
+      transform: translateY(-1px)
+    }
+
+    .dl-btn .ico {
+      font-size: 16px
+    }
+
+    .dl-btn.sec {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--accent)
+    }
+
+    .dl-btn.sec:hover {
+      background: var(--accent-dim);
+      border-color: var(--accent)
+    }
+
+    /* SLIDE DE CIERRE PREMIUM POG */
+    .closing-decorations {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .closing-circle-blur {
+      position: absolute;
+      width: 320px;
+      height: 320px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0, 208, 132, 0.08) 0%, transparent 70%);
+      filter: blur(50px);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .light-mode .closing-circle-blur {
+      background: radial-gradient(circle, rgba(0, 208, 132, 0.05) 0%, transparent 70%);
+    }
+
+    .closing-diagonal-line {
+      position: absolute;
+      width: 150px;
+      height: 1px;
+      background: rgba(0, 208, 132, 0.15);
+      z-index: 1;
+    }
+
+    .light-mode .closing-diagonal-line {
+      background: rgba(0, 80, 48, 0.08);
+    }
+
+    .closing-diagonal-line.l1 {
+      top: 40px;
+      left: -30px;
+      transform: rotate(45deg);
+    }
+
+    .closing-diagonal-line.l2 {
+      bottom: 40px;
+      right: -30px;
+      transform: rotate(45deg);
+    }
+
+    .closing-geom-square {
+      position: absolute;
+      width: 240px;
+      height: 240px;
+      border: 1px dashed rgba(255, 255, 255, 0.02);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(15deg);
+    }
+
+    .light-mode .closing-geom-square {
+      border-color: rgba(0, 80, 48, 0.03);
+    }
+
+    .closing-layout {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      height: 100%;
+      width: 100%;
+      padding: 40px 32px !important;
+      position: relative;
+      z-index: 2;
+      box-sizing: border-box;
+    }
+
+    .closing-logo-wrap {
+      height: 65px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 4px;
+    }
+
+    .car-closing-logo {
+      height: 56px;
+      width: auto;
+      object-fit: contain;
+      filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
+    }
+
+    .car-closing-logo-placeholder {
+      font-family: 'Jockey One', sans-serif;
+      font-size: 52px;
+      font-weight: 900;
+      color: #fff;
+      letter-spacing: -1px;
+    }
+
+    .light-mode .car-closing-logo-placeholder {
+      color: #001F14;
+    }
+
+    .closing-title {
+      font-family: 'Jockey One', sans-serif;
+      font-size: 28px;
+      font-weight: 900;
+      color: #fff;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-top: 6px;
+      margin-bottom: 8px;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    }
+
+    .light-mode .closing-title {
+      color: #001F14;
+      text-shadow: none;
+    }
+
+    .closing-actions {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      padding: 10px 20px;
+      border-radius: 40px;
+      margin: 12px 0;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .light-mode .closing-actions {
+      background: rgba(0, 128, 85, 0.04);
+      border-color: rgba(0, 128, 85, 0.1);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+    }
+
+    .action-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .action-icon {
+      font-size: 13px;
+    }
+
+    .action-text {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.9);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .light-mode .action-text {
+      color: #0A1310;
+    }
+
+    .action-dot {
+      font-size: 9px;
+      color: rgba(255, 255, 255, 0.2);
+    }
+
+    .light-mode .action-dot {
+      color: rgba(0, 128, 85, 0.2);
+    }
+
+    .closing-body {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 12px;
+      color: #8BA69C;
+      line-height: 1.6;
+      max-width: 90%;
+      margin-bottom: 16px;
+      font-weight: 500;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    }
+
+    .light-mode .closing-body {
+      color: #3C4E49;
+      text-shadow: none;
+    }
+
+    .closing-footer {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 15px;
+    }
+
+    .closing-divider {
+      height: 1px;
+      width: 60%;
+      background: linear-gradient(90deg, transparent 0%, rgba(0, 208, 132, 0.2) 50%, transparent 100%);
+      margin-bottom: 12px;
+    }
+
+    .light-mode .closing-divider {
+      background: linear-gradient(90deg, transparent 0%, rgba(0, 128, 85, 0.15) 50%, transparent 100%);
+    }
+
+    .closing-handle {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 11px;
+      color: var(--accent);
+      letter-spacing: 1.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .light-mode .closing-handle {
+      color: #008055;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="loader">
+    <div class="loader-logo">P<span>G</span></div>
+    <div class="loader-bar">
+      <div class="loader-fill"></div>
+    </div>
+    <div class="loader-sub">Sistema editorial cargando</div>
+  </div>
+
+  <!-- PANTALLA API KEY -->
+  <div id="apiScreen">
+    <div class="api-logo">P<span>G</span></div>
+    <div class="api-title">Configurar API Key</div>
+    <div class="api-desc">
+      <strong>API Texto (Obligatoria):</strong> Entrá a <a href="https://console.groq.com/keys"
+        target="_blank">console.groq.com</a> y creá tu API Key de Groq.<br><br>
+      <strong>API Imágenes (Opcional):</strong> Para imágenes infinitas, entrá a <a
+        href="https://unsplash.com/developers" target="_blank">unsplash.com/developers</a>, registrate y creá una App
+      para obtener tu "Access Key". Si la dejás vacía, se usarán 150 fotos pre-cargadas.
+    </div>
+    <input class="api-input" id="apiKeyInput" type="password" placeholder="Pegá tu API Key de Groq aquí (Texto)"
+      autocomplete="off" />
+    <input class="api-input" id="apiUnsplashInput" type="password"
+      placeholder="Pegá tu Access Key de Unsplash aquí (Imágenes)" autocomplete="off" style="margin-top:10px" />
+    <button class="api-save-btn" id="apiSaveBtn" style="margin-top:20px">GUARDAR Y COMENZAR</button>
+    <div class="api-note">Las keys se guardan en tu navegador (localStorage).</div>
+  </div>
+
+  <div id="overlay">
+    <div class="ov-spin"></div>
+    <p class="ov-text" id="ov-text">Generando contenido PG...</p>
+  </div>
+
+  <div id="toast"></div>
+
+  <div class="topbar">
+    <div class="tb-logo">
+      <div class="tb-mark">PG</div>
+      <span class="tb-sub">CONTENT SYSTEM</span>
+    </div>
+    <div class="tb-right">
+      <button class="change-key-btn" id="changeKeyBtn">⚙ API Key</button>
+      <span class="tb-handle">@prof.olivapablo</span>
+    </div>
+  </div>
+
+  <div class="layout">
+
+    <aside class="panel">
+
+      <div class="section">
+        <span class="sec-label">Tipo de publicación</span>
+        <div class="type-tabs" id="typeTabs">
+          <button class="ttab on" data-type="post"><span class="ico">◻</span>Post</button>
+          <button class="ttab" data-type="carousel"><span class="ico">▤</span>Carrusel</button>
+          <button class="ttab" data-type="story"><span class="ico">▯</span>Story</button>
+        </div>
+      </div>
+
+      <div class="section">
+        <span class="sec-label">Pilar de contenido</span>
+        <div class="pilar-list" id="pilarList">
+          <button class="pilar-btn on" data-pilar="antihumo"
+            data-topics='["El cardio en ayunas es un mito","La industria fitness necesita gente insegura","Entrenar 2 horas no te hace mejor","Suplementos que no necesitás","Motivación tóxica del fitness","El gym como castigo","Influencers fitness vs realidad","El Ozempic no reemplaza el movimiento"]'>
+            <span class="pip"></span>🔥 Anti-Humo Fitness
+          </button>
+          <button class="pilar-btn" data-pilar="efmoderna"
+            data-topics='["Por qué odiabas EF en la escuela","Lo que deberían enseñar en EF","Movimiento saludable en adolescentes","Hábitos desde la escuela","La EF escolar está rota","Pedagogía del entrenamiento","EF moderna vs EF tradicional"]'>
+            <span class="pip"></span>📚 Educación Física Moderna
+          </button>
+          <button class="pilar-btn" data-pilar="saludmental"
+            data-topics='["Ejercicio y ansiedad","Autoestima y entrenamiento","Culpa después de no entrenar","Dopamina y hábitos","Sedentarismo y depresión","Disciplina saludable vs obsesión","El ejercicio no es un castigo"]'>
+            <span class="pip"></span>🧠 Salud Mental + Ejercicio
+          </button>
+          <button class="pilar-btn" data-pilar="realpeople"
+            data-topics='["Entrenar sin tiempo","Empezar desde cero","Obesidad y ejercicio real","Si odiás el gimnasio","El mínimo efectivo","Constancia vs intensidad","Hábitos sostenibles"]'>
+            <span class="pip"></span>🙋 Fitness para Personas Reales
+          </button>
+          <button class="pilar-btn" data-pilar="ciencia"
+            data-topics='["Hipertrofia explicada","Déficit calórico real","Creatina sin misterios","Proteínas: cuántas necesitás","Recuperación muscular","Recomposición corporal","Sueño y rendimiento","Diabetes y ejercicio"]'>
+            <span class="pip"></span>🔬 Ciencia Simplificada
+          </button>
+          <button class="pilar-btn" data-pilar="rendimiento"
+            data-topics='["Fuerza funcional real","Entrenamiento de potencia","Recomposición sin dieta extrema","Rendimiento deportivo básico","Movilidad y rendimiento","Entrenar en poco tiempo","Fuerza vs cardio"]'>
+            <span class="pip"></span>⚡ Rendimiento y Recomposición
+          </button>
+          <button class="pilar-btn" data-pilar="vozpersonal"
+            data-topics='["Por qué elegí ser Profesor de EF","Mi filosofía honesta como entrenador","Lo que aprendí enseñando a adolescentes","Mi entrenamiento real hoy en día","El fitness de hoy vs cuando empecé","Una reflexión sincera sobre la salud real","Un agradecimiento honesto a esta comunidad","Por qué abrí esta cuenta de Instagram"]'>
+            <span class="pip"></span>👤 Voz Personal POG
+          </button>
+        </div>
+      </div>
+
+      <div class="section">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <span class="sec-label" style="margin-bottom:0">Tema</span>
+          <button class="ai-btn" id="aiBtn">✦ Sugerir con IA</button>
+        </div>
+        <div id="topicWrap"></div>
+      </div>
+
+      <div class="section">
+        <span class="sec-label">Estilo Visual</span>
+        <div class="type-tabs" id="styleGrid">
+          <button class="ttab on" data-style="dark">
+            <span class="ico">🌑</span>
+            Oscuro
+          </button>
+          <button class="ttab" data-style="light">
+            <span class="ico">☀️</span>
+            Claro
+          </button>
+        </div>
+      </div>
+
+      <div class="section">
+        <span class="sec-label">Opciones</span>
+        <label class="pilar-btn" style="cursor:pointer">
+          <input type="checkbox" id="imgToggle" checked style="margin-right:8px">
+          Incluir Imágenes
+        </label>
+      </div>
+
+
+
+      <div class="section">
+        <span class="sec-label">Tono</span>
+        <div class="tone-grid" id="toneGrid">
+          <button class="tone-btn on" data-tone="polemico"><strong>🔥 Polémico</strong>Desafía lo establecido</button>
+          <button class="tone-btn" data-tone="mito"><strong>💣 Rompe mito</strong>Desmiente con evidencia</button>
+          <button class="tone-btn" data-tone="ciencia"><strong>📊 Científico</strong>Datos que sorprenden</button>
+          <button class="tone-btn" data-tone="debate"><strong>⚡ Debate</strong>Invita a opinar</button>
+        </div>
+      </div>
+
+      <div class="section">
+        <span class="sec-label">O escribí tu propio tema</span>
+        <textarea class="custom-ta" id="customInput" rows="3"
+          placeholder="Ej: El Ozempic no reemplaza el movimiento..."></textarea>
+      </div>
+
+      <div class="gen-section">
+        <button class="gen-btn" id="genBtn">⚡ GENERAR</button>
+      </div>
+
+    </aside>
+
+    <main class="stage" id="stage">
+      <div class="empty">
+        <div class="empty-mark">PG</div>
+        <p class="empty-text">Elegí pilar, tema y tono.<br>Generá tu primer contenido.</p>
+      </div>
+    </main>
+
+  </div>
+
+  <script>
+    // =========================================================================
+    // CONFIGURACIÓN DE CLAVES API (OPCIONAL)
+    // Poné tus claves reales entre las comillas simples abajo para dejarlas fijas
+    // en tu celular y PC sin tener que ingresarlas cada vez que abras la app.
+    var STATIC_GEMINI_KEY = '';   // Tu API Key de Groq (gsk_...)
+    var STATIC_UNSPLASH_KEY = ''; // Tu Access Key de Unsplash (opcional)
+    // =========================================================================
+
+    var GEMINI_KEY = STATIC_GEMINI_KEY || '';
+    var UNSPLASH_KEY = STATIC_UNSPLASH_KEY || '';
+    var UNSPLASH_CACHE = [];
+    var STATE = { type: 'post', pilar: 'antihumo', pilarLabel: 'Anti-Humo Fitness', topic: '', tone: 'polemico', style: 'dark', useImages: true };
+    var SLIDES = { list: [], current: 0 };
+    var LOGO_LIGHT = localStorage.getItem('pg_logo_light') || '';
+    var LOGO_DARK = localStorage.getItem('pg_logo_dark') || '';
+    var CURRENT_DATA = null;
+
+    var PILAR_LABELS = {
+      antihumo: 'Anti-Humo Fitness', efmoderna: 'Educación Física Moderna',
+      saludmental: 'Salud Mental + Ejercicio', realpeople: 'Fitness para Personas Reales',
+      ciencia: 'Ciencia Simplificada', rendimiento: 'Rendimiento y Recomposición Corporal',
+      vozpersonal: 'Voz Personal POG'
+    };
+    var TONE_DESC = {
+      polemico: 'polémico, agresivo inteligente, contradice la narrativa popular del fitness con base real. Sin frases cliché.',
+      mito: 'destructor de mitos extendidos, directo y contundente, con evidencia clara y lenguaje humano.',
+      ciencia: 'científico simplificado, datos sorprendentes traducidos a lenguaje cotidiano. Sin jerga innecesaria.',
+      debate: 'que abre debate real, genera identificación fuerte, invita a opinar y a compartir con alguien.'
+    };
+
+    document.addEventListener('DOMContentLoaded', function () {
+
+      // Verificar key guardada
+      var saved = localStorage.getItem('pg_or_key');
+      var savedUns = localStorage.getItem('pg_unsplash_key');
+
+      // Sincronizar localStorage si las claves estáticas del archivo cambiaron (evita bloqueos de caché vieja)
+      if (STATIC_GEMINI_KEY && STATIC_GEMINI_KEY.trim().length > 10) {
+        var cleanStatic = STATIC_GEMINI_KEY.trim();
+        if (saved !== cleanStatic) {
+          localStorage.setItem('pg_or_key', cleanStatic);
+          saved = cleanStatic;
+        }
+      }
+
+      if (STATIC_UNSPLASH_KEY && STATIC_UNSPLASH_KEY.trim().length > 10) {
+        var cleanStaticUns = STATIC_UNSPLASH_KEY.trim();
+        if (savedUns !== cleanStaticUns) {
+          localStorage.setItem('pg_unsplash_key', cleanStaticUns);
+          savedUns = cleanStaticUns;
+        }
+      }
+
+      // Prioridad a lo guardado/sincronizado
+      if (saved && saved.trim().length > 10) {
+        GEMINI_KEY = saved.trim();
+      }
+      if (savedUns && savedUns.trim().length > 10) {
+        UNSPLASH_KEY = savedUns.trim();
+      }
+
+      if (GEMINI_KEY && GEMINI_KEY.trim().length > 10) {
+        document.getElementById('apiScreen').classList.add('hide');
+      }
+
+      // Guardar key
+      document.getElementById('apiSaveBtn').addEventListener('click', function () {
+        var val = document.getElementById('apiKeyInput').value.trim();
+        var valUns = document.getElementById('apiUnsplashInput').value.trim();
+        if (!val || val.length < 10) { showToast('Ingresá una API Key de Groq válida.'); return; }
+        GEMINI_KEY = val;
+        localStorage.setItem('pg_or_key', val);
+
+        UNSPLASH_KEY = valUns;
+        if (valUns) localStorage.setItem('pg_unsplash_key', valUns);
+        else localStorage.removeItem('pg_unsplash_key');
+
+        document.getElementById('apiScreen').classList.add('hide');
+      });
+
+      // También guardar con Enter
+      document.getElementById('apiKeyInput').addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') document.getElementById('apiSaveBtn').click();
+      });
+
+      // Cambiar key
+      document.getElementById('changeKeyBtn').addEventListener('click', function () {
+        document.getElementById('apiKeyInput').value = GEMINI_KEY;
+        document.getElementById('apiUnsplashInput').value = UNSPLASH_KEY;
+        document.getElementById('apiScreen').classList.remove('hide');
+      });
+
+      // TYPE TABS
+      document.getElementById('typeTabs').addEventListener('click', function (e) {
+        var btn = e.target.closest('.ttab');
+        if (!btn) return;
+        document.querySelectorAll('.ttab').forEach(function (b) { b.classList.remove('on') });
+        btn.classList.add('on');
+        STATE.type = btn.dataset.type;
+      });
+
+      // PILARES
+      document.getElementById('pilarList').addEventListener('click', function (e) {
+        var btn = e.target.closest('.pilar-btn');
+        if (!btn) return;
+        document.querySelectorAll('.pilar-btn').forEach(function (b) { b.classList.remove('on') });
+        btn.classList.add('on');
+        STATE.pilar = btn.dataset.pilar;
+        STATE.pilarLabel = PILAR_LABELS[btn.dataset.pilar];
+        STATE.topic = '';
+        var topics = JSON.parse(btn.dataset.topics || '[]');
+        renderChips(topics);
+      });
+
+      // TONE
+      document.getElementById('toneGrid').addEventListener('click', function (e) {
+        var btn = e.target.closest('.tone-btn');
+        if (!btn) return;
+        document.querySelectorAll('.tone-btn').forEach(function (b) { b.classList.remove('on') });
+        btn.classList.add('on');
+        STATE.tone = btn.dataset.tone;
+      });
+
+      // STYLE TABS
+      document.getElementById('styleGrid').addEventListener('click', function (e) {
+        var btn = e.target.closest('.ttab');
+        if (!btn) return;
+        document.querySelectorAll('#styleGrid .ttab').forEach(function (b) { b.classList.remove('on') });
+        btn.classList.add('on');
+        STATE.style = btn.dataset.style;
+      });
+
+      // IMAGE TOGGLE
+      document.getElementById('imgToggle').addEventListener('change', function (e) {
+        STATE.useImages = e.target.checked;
+      });
+
+
+
+      // CUSTOM INPUT
+      document.getElementById('customInput').addEventListener('input', function () {
+        STATE.topic = this.value.trim();
+        if (STATE.topic) {
+          document.querySelectorAll('.chip').forEach(function (c) { c.classList.remove('on') });
+        }
+      });
+
+      // GENERAR
+      document.getElementById('genBtn').addEventListener('click', generate);
+
+      // SUGERIR IA
+      document.getElementById('aiBtn').addEventListener('click', generateTopicsAI);
+
+      // Init chips
+      var firstPilar = document.querySelector('.pilar-btn.on');
+      if (firstPilar) renderChips(JSON.parse(firstPilar.dataset.topics || '[]'));
+
+      // Ocultar loader
+      setTimeout(function () { document.getElementById('loader').classList.add('hide'); }, 1100);
+
+      // Cerrar modal de descarga
+      document.getElementById('closeModalBtn').addEventListener('click', function () {
+        document.getElementById('downloadModal').style.display = 'none';
+      });
+    });
+
+    function renderChips(topics) {
+      var wrap = document.getElementById('topicWrap');
+      wrap.innerHTML = '';
+      topics.forEach(function (t) {
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'chip';
+        btn.textContent = t;
+        btn.addEventListener('click', function () {
+          document.querySelectorAll('.chip').forEach(function (c) { c.classList.remove('on') });
+          btn.classList.add('on');
+          STATE.topic = t;
+          document.getElementById('customInput').value = '';
+        });
+        wrap.appendChild(btn);
+      });
+    }
+
+    function callGemini(prompt, maxTokens, modelOverride) {
+      if (!GEMINI_KEY) {
+        document.getElementById('apiScreen').classList.remove('hide');
+        return Promise.reject(new Error('Sin API Key'));
+      }
+      var selectedModel = modelOverride || 'llama-3.3-70b-versatile';
+      return fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + GEMINI_KEY
+        },
+        body: JSON.stringify({
+          model: selectedModel,
+          max_tokens: maxTokens || 1200,
+          temperature: 0.85,
+          messages: [{ role: 'user', content: prompt }]
+        })
+      })
+        .then(function (r) {
+          if (r.status === 429 && !modelOverride) {
+            console.warn('Rate limit hit for Llama-70b, automatically retrying with Llama-8b...');
+            return callGemini(prompt, maxTokens, 'llama-3.1-8b-instant');
+          }
+          return r.json();
+        })
+        .then(function (data) {
+          if (typeof data === 'string') return data; // Ya es el resultado de la llamada reintentada
+          if (data.error) {
+            if ((data.error.code === 'rate_limit_exceeded' || data.error.type === 'rate_limit_exceeded') && !modelOverride) {
+              console.warn('Rate limit in response body, retrying with Llama-8b...');
+              return callGemini(prompt, maxTokens, 'llama-3.1-8b-instant');
+            }
+            throw new Error(data.error.message || 'Error de API');
+          }
+          if (!data.choices || !data.choices[0]) throw new Error('Sin response');
+          var text = data.choices[0].message.content;
+          return text.replace(/```json|```/g, '').trim();
+        });
+    }
+
+    function buildPrompt() {
+      var pilarSpecificRules = '';
+      if (STATE.pilar === 'vozpersonal') {
+        pilarSpecificRules = 'REGLAS ESPECÍFICAS DEL PILAR VOZ PERSONAL:\n' +
+          '- Este pilar NO requiere respaldo científico explícito (no cites papers ni journals), pero todo lo que afirmes debe ser 100% coherente con la fisiología y la ciencia, y jamás contradecir la postura anti-humo de la marca.\n' +
+          '- El tono debe ser sumamente auténtico, cercano, humano y reflexivo. Debe sonar como una persona real hablando, buscando generar identificación y conexión emocional profunda con la audiencia, no como una marca corporativa fría.\n' +
+          '- Apoyate en tus experiencias reales en la docencia (colegios), tus entrenamientos personales o tu vida cotidiana.\n' +
+          '- En carrusel, los slides NO necesitan una estructura científica rígida (como argumento y giro químico). En su lugar, deben narrar una reflexión personal, anécdota o historia de forma fluida y lógica, manteniendo la regla de 3 a 5 líneas por slide para retención.\n' +
+          '- El caption debe terminar de forma obligatoria invitando a la comunidad a interactuar de forma genuina (comentar su experiencia personal, compartir con un colega, guardar o simplemente quedarse en la comunidad).\n\n';
+      }
+
+      var ctx = 'MARCA: PG (@prof.olivapablo)\n' +
+        'Identidad: Profesor de Educación Física. Anti-humo fitness. Entrenamiento real para personas reales.\n' +
+        'Tono de marca: serio, agresivo inteligente, directo, premium, ironía ocasional.\n' +
+        'NUNCA: influencer superficial, vendedor de suplementos, coach motivacional vacío, frases cliché fitness.\n' +
+        'SIEMPRE: simplificar ciencia, generar identificación, hooks fuertes, lenguaje humano y útil.\n' +
+        'Pilar: ' + STATE.pilarLabel + '\n' +
+        'Tema: "' + STATE.topic + '"\n' +
+        'Tono: ' + TONE_DESC[STATE.tone] + '\n\n' +
+
+        pilarSpecificRules +
+
+        (STATE.pilar === 'vozpersonal' ? '' : 'REGLA DE SOLIDEZ CIENTÍFICA (SIN CITAS EXPLÍCIPAS):\n' +
+          '- Todo el contenido generado debe estar basado rigurosamente en evidencia científica actual (fisiología del ejercicio, psicología del comportamiento, nutrición deportiva, pedagogía y salud pública).\n' +
+          '- Las afirmaciones deben poder respaldarse con literatura científica real (journals como NSCA, ACSM, JSCR, Sports Medicine, entre otros), pero NUNCA menciones explícitamente estas fuentes o journals en el texto. El contenido debe sonar como conocimiento propio y autoridad absoluta de PG, no como una cita académica fría.\n' +
+          '- NUNCA afirme algo que no tenga un respaldo científico sólido y comprobado. Si un tema es debatido en la comunidad científica, preséntalo como debate o matiz, no como verdad absoluta. El objetivo es que NINGÚN colega o profesional del área pueda refutar lo publicado.\n\n') +
+
+        'REGLA DE VIRALIDAD, SEO Y LEGIBILIDAD (INSTAGRAM / MOBILE):\n' +
+        '- El contenido debe generar identificación inmediata, provocando el guardado y el compartido compulsivo de la publicación.\n' +
+        '- Optimización SEO en el caption: usá palabras clave de alto volumen de búsqueda relacionadas al tema integradas de forma natural (ej: entrenamiento funcional, pérdida de grasa, salud mental y ejercicio, hábitos saludables, educación física).\n' +
+        '- La primera línea del caption DEBE funcionar como un gancho de búsqueda súper potente y detener el scroll.\n' +
+        '- Estructuración mobile-friendly: redactá oraciones cortas, párrafos de un máximo de 2 líneas de texto y saltos de línea estratégicos para que sea sumamente fácil de leer en pantallas de celular.\n' +
+        '- Usá estrictamente entre 8 y 10 hashtags al final del caption combinando: hashtags de alto volumen (#fitness #salud #entrenamiento), hashtags de nicho (#educacionfisica #antihumofitness #pogfitness), e intercalando términos en español e inglés.\n\n' +
+
+        'REGLA CRÍTICA DE DIALECTO (ARGENTINO / VOSEO RIOPLATENSE):\n' +
+        '- Toda la escritura (títulos, subtítulos, cuerpos de texto, CTAs, stories, carruseles y la descripción final de Instagram) DEBE ser redactada OBLIGATORIAMENTE en Español de Argentina con voseo rioplatense real.\n' +
+        '- Háblale al usuario siempre de "VOS", nunca de "TÚ" ni de "TI".\n' +
+        '- Usá verbos con conjugación argentina de forma natural y decidida: por ejemplo, usá "querés" (no quieres), "tenés" (no tienes), "hacé" (no haz), "olvidate" (no te olvides), "entrenás" (no entrenas), "entrená" (no entrena), "podés" (no puedes), "buscás" (no buscas), "empezá" (no empieza), "dejá" (no dejes), "mirá" (no mires), "probá" (no pruebes).\n' +
+        '- Sustituí cualquier "para ti" por "para vos".\n' +
+        '- El lenguaje debe ser directo, picante, contundente y con la terminología natural de gimnasio/entrenamiento en Argentina. Cero español neutro.\n\n' +
+
+        'REGLA CRÍTICA: Los hashtags (#) van ÚNICAMENTE dentro del campo caption. PROHIBIDO poner hashtags en headline, sub, body, title, question o cualquier otro campo visual.\n\n';
+
+      if (STATE.type === 'post') {
+        return ctx + 'Generá un post cuadrado de Instagram para PG.\nResponde SOLO con JSON válido, sin backticks ni texto extra:\n{"pilar_tag":"nombre del pilar en mayúsculas 1-3 palabras","deco":"número o símbolo decorativo grande (ej: 80%, X, 0)","headline":"titular impactante en mayúsculas máx 7 palabras SIN hashtags","sub":"frase de apoyo 1-2 oraciones SIN hashtags","caption":"caption para descripción de Instagram (Caption - listo para copiar): DEBE aplicar estrictamente las reglas de SEO, viralidad y legibilidad móvil definidas en el contexto. Primera línea como gancho de búsqueda potente para detener el scroll, oraciones cortas, párrafos de máximo 2 líneas, saltos de línea estratégicos para mobile, palabras clave de alto volumen relacionadas integradas, y al final exactamente entre 8 y 10 hashtags específicos combinando volumen, nicho (#educacionfisica #antihumofitness #pogfitness) y español/inglés. Tono PG.","image_search_term":"3-4 specific English keywords for Unsplash image search matching the topic of this post exactly, comma-separated (e.g. martial arts, boxing, kickboxing)"}';
+      }
+      if (STATE.type === 'story') {
+        return ctx + 'Generá una Story de Instagram para PG.\nResponde SOLO con JSON válido, sin backticks ni texto extra:\n{"label":"etiqueta corta en mayúsculas SIN hashtags","question":"afirmación impactante en mayúsculas máx 6 palabras SIN hashtags","body":"Explicación directa, rigurosa y de gran valor educativo redactada para ocupar de 3 a 5 líneas como máximo (2-3 oraciones contundentes). Tono PG.","cta":"llamada a acción corta","caption":"caption para descripción de Instagram (Caption - listo para copiar): DEBE aplicar estrictamente las reglas de SEO, viralidad y legibilidad móvil definidas en el contexto. Primera línea como gancho de búsqueda potente para detener el scroll, oraciones cortas, párrafos de máximo 2 líneas, saltos de línea estratégicos para mobile, palabras clave de alto volumen relacionadas integradas, y al final exactamente entre 8 y 10 hashtags específicos combinando volumen, nicho (#educacionfisica #antihumofitness #pogfitness) y español/inglés. Tono PG.","image_search_term":"3-4 specific English keywords for Unsplash image search matching the topic of this story exactly, comma-separated (e.g. martial arts, boxing, kickboxing)"}';
+      }
+      if (STATE.type === 'carousel') {
+        return ctx + 'Generá un carrusel de EXACTAMENTE 6 slides para Instagram de PG.\n' +
+          'REGLA DE RIQUEZA Y RETENCIÓN EN SLIDES: Cada slide (cuerpo de texto) debe ser altamente informativo, científico y de gran valor educativo, pero al mismo tiempo ágil y fácil de leer para favorecer la retención del lector. El cuerpo de cada slide debe ocupar OBLIGATORIAMENTE entre 3 y 5 líneas de texto como máximo (aproximadamente 2-3 oraciones contundentes y bien redactadas). NUNCA generes bloques de texto aburridos o gigantes, ni tampoco oraciones de una sola línea sin contenido.\n' +
+          'Slide 1: hook potente que detenga el scroll. Slide 2: contexto científico y práctico. Slide 3: argumento central y evidencia. Slide 4: el giro inesperado o mito a romper. Slide 5: aplicación práctica concreta para el lector. Slide 6: conclusión contundente + CTA potente.\n' +
+          'NINGÚN slide debe contener hashtags, esos van solo en caption.\n' +
+          'Responde SOLO con JSON válido, sin backticks:\n' +
+          '{"slides":[' +
+          '{"tag":"HOOK","title":"TÍTULO SIN HASHTAGS","body":"Explicación rica, directa y de gran valor educativo, redactada para ocupar entre 3 y 5 líneas de texto (2-3 oraciones contundentes).","bgHex":"#010B0E","isLast":false},' +
+          '{"tag":"CONTEXTO","title":"TÍTULO","body":"Contexto científico directo y de gran valor educativo, redactada para ocupar entre 3 y 5 líneas de texto (2-3 oraciones contundentes).","bgHex":"#001F14","isLast":false},' +
+          '{"tag":"ARGUMENTO","title":"TÍTULO","body":"Argumento central y evidencia, redactada para ocupar entre 3 y 5 líneas de texto (2-3 oraciones contundentes).","bgHex":"#002D1A","isLast":false},' +
+          '{"tag":"EL GIRO","title":"TÍTULO","body":"El mito a romper o giro inesperado, redactada para ocupar entre 3 y 5 líneas de texto (2-3 oraciones contundentes).","bgHex":"#001F14","isLast":false},' +
+          '{"tag":"APLICACIÓN","title":"TÍTULO","body":"Aplicación práctica y concreta para el lector, redactada para ocupar entre 3 y 5 líneas de texto (2-3 oraciones contundentes).","bgHex":"#010B0E","isLast":false},' +
+          '{"tag":"CONCLUSIÓN","title":"TÍTULO","body":"Cierre directo y llamada a la acción potente, redactada para ocupar entre 3 y 5 líneas de texto (2-3 oraciones contundentes).","bgHex":"#001F14","isLast":true}' +
+          '],"caption":"caption para descripción de Instagram (Caption - listo para copiar): DEBE aplicar estrictamente las reglas de SEO, viralidad y legibilidad móvil definidas en el contexto. Primera línea como gancho de búsqueda potente para detener el scroll, oraciones cortas, párrafos de máximo 2 líneas, saltos de línea estratégicos para móvil, palabras clave de alto volumen relacionadas integradas, y al final exactamente entre 8 y 10 hashtags específicos combinando volumen, nicho (#educacionfisica #antihumofitness #pogfitness) y español/inglés. Tono PG.","image_search_term":"3-4 specific English keywords for Unsplash image search matching the topic of this carousel exactly, comma-separated (e.g. martial arts, boxing, kickboxing)"}';
+      }
+    }
+
+    async function fetchUnsplashImages(customQuery) {
+      if (!UNSPLASH_KEY) return;
+      var q = customQuery;
+      if (!q) {
+        var queries = {
+          antihumo: 'gym,weights,kettlebell,workout',
+          efmoderna: 'sports,fitness,running,athletics',
+          saludmental: 'yoga,meditation,nature,stretching',
+          realpeople: 'workout,training,people,exercise',
+          ciencia: 'anatomy,science,physical therapy,muscle',
+          rendimiento: 'crossfit,sprint,sweat,heavy weights',
+          vozpersonal: 'fitness,teacher,coaching,sports'
+        };
+        q = queries[STATE.pilar] || 'gym,fitness';
+      }
+      try {
+        var r = await fetch('https://api.unsplash.com/photos/random?count=10&query=' + encodeURIComponent(q) + '&client_id=' + UNSPLASH_KEY);
+        var data = await r.json();
+        if (Array.isArray(data)) {
+          // Usar url raw con parámetros de alta resolución (1920px de ancho, calidad 85%)
+          UNSPLASH_CACHE = data.map(function (d) { return d.urls.raw + '&w=1920&auto=format&fit=crop&q=85'; });
+        }
+      } catch (e) {
+        console.error('Error Unsplash API:', e);
+      }
+    }
+
+    async function generateTopicsAI() {
+      if (!GEMINI_KEY) { document.getElementById('apiScreen').classList.remove('hide'); return; }
+      var btn = document.getElementById('aiBtn');
+      btn.disabled = true; btn.textContent = '⏳...';
+      try {
+        var prompt = 'Sos el cerebro editorial de PG (@prof.olivapablo). Marca: Profesor de EF, anti-humo fitness, serio, basado en evidencia.\nPilar activo: "' + STATE.pilarLabel + '".\nGenerá 8 temas frescos, específicos y virales para este pilar. Sin clichés fitness.\nResponde SOLO con JSON válido sin backticks:\n{"topics":["tema1","tema2","tema3","tema4","tema5","tema6","tema7","tema8"]}';
+        var raw = await callGemini(prompt, 400);
+        var parsed = JSON.parse(sanitizeJsonString(raw));
+        if (parsed.topics && parsed.topics.length) {
+          STATE.topic = '';
+          renderChips(parsed.topics);
+        }
+      } catch (e) {
+        showToast((e.message || 'Error').substring(0, 80));
+      } finally {
+        btn.disabled = false; btn.textContent = '✦ Sugerir con IA';
+      }
+    }
+
+    async function generate() {
+      var customVal = document.getElementById('customInput').value.trim();
+      var topic = customVal || STATE.topic;
+      if (!topic) { showToast('Elegí o escribí un tema primero.'); return; }
+      STATE.topic = topic;
+      if (!GEMINI_KEY) { document.getElementById('apiScreen').classList.remove('hide'); return; }
+
+      var btn = document.getElementById('genBtn');
+      var ov = document.getElementById('overlay');
+      btn.disabled = true;
+      document.getElementById('ov-text').textContent = 'Preparando ' + (STATE.type === 'post' ? 'post' : STATE.type === 'story' ? 'story' : 'carrusel') + '...';
+      ov.style.display = 'flex';
+
+      var maxTok = STATE.type === 'carousel' ? 3000 : 1000;
+
+      try {
+        var raw = await callGemini(buildPrompt(), maxTok);
+        var parsed = JSON.parse(sanitizeJsonString(raw));
+        CURRENT_DATA = parsed;
+
+        if (UNSPLASH_KEY && STATE.useImages) {
+          document.getElementById('ov-text').textContent = 'Descargando imágenes específicas...';
+          var searchTerm = parsed.image_search_term || '';
+          await fetchUnsplashImages(searchTerm);
+        }
+
+        renderOutput(parsed);
+      } catch (e) {
+        var msg = e.message || 'Error desconocido';
+        if (msg.indexOf('API_KEY') !== -1 || msg.indexOf('invalid') !== -1 || msg.indexOf('API key') !== -1) {
+          document.getElementById('apiScreen').classList.remove('hide');
+        }
+        showToast(msg.length > 80 ? msg.substring(0, 80) + '...' : msg);
+      } finally {
+        btn.disabled = false;
+        ov.style.display = 'none';
+      }
+    }
+
+    function renderOutput(data) {
+      var stage = document.getElementById('stage');
+      stage.innerHTML = '';
+
+      var hdr = document.createElement('div');
+      hdr.className = 'stage-header';
+      var labels = { post: 'POST', carousel: 'CARRUSEL', story: 'STORY' };
+      var html = '<h2 class="stage-title">' + labels[STATE.type] + '</h2>';
+      html += '<div style="display:flex;gap:8px">';
+      if (STATE.type === 'carousel') {
+        html += '<button class="dl-btn sec" id="dlAllBtn"><span class="ico">📦</span> TODO</button>';
+        html += '<button class="dl-btn" id="dlBtn"><span class="ico">📸</span> SLIDE</button>';
+      } else {
+        html += '<button class="dl-btn" id="dlBtn"><span class="ico">📸</span> DESCARGAR</button>';
+      }
+      html += '</div>';
+      hdr.innerHTML = html;
+      stage.appendChild(hdr);
+
+      var wrap = document.createElement('div');
+      wrap.className = 'canvas-wrap';
+      stage.appendChild(wrap);
+
+      if (STATE.type === 'post') renderPost(data, wrap);
+      else if (STATE.type === 'story') renderStory(data, wrap);
+      else renderCarousel(data, wrap, stage);
+
+      // DOWNLOAD EVENTS
+      var dBtn = document.getElementById('dlBtn');
+      if (dBtn) {
+        dBtn.addEventListener('click', function () {
+          downloadElement(wrap, STATE.type + '-' + Date.now());
+        });
+      }
+      var dAll = document.getElementById('dlAllBtn');
+      if (dAll) {
+        dAll.addEventListener('click', async function () {
+          dAll.disabled = true; dAll.textContent = '...';
+          for (var i = 0; i < SLIDES.list.length; i++) {
+            SLIDES.current = i;
+            drawSlide(i);
+            await new Promise(r => setTimeout(r, 300)); // Esperar render
+            await downloadElement(wrap, 'carousel-slide-' + (i + 1));
+          }
+          dAll.disabled = false; dAll.innerHTML = '<span class="ico">📦</span> TODO';
+          drawSlide(0); SLIDES.current = 0; // Volver al inicio
+        });
+      }
+
+      if (data.caption) {
+        var cb = document.createElement('div');
+        cb.className = 'caption-box';
+        cb.innerHTML = '<span class="cap-label">Caption — listo para copiar</span><p class="cap-text" id="capText">' + esc(data.caption) + '</p><button class="cap-copy" id="capBtn">COPIAR CAPTION</button>';
+        stage.appendChild(cb);
+        document.getElementById('capBtn').addEventListener('click', function () {
+          navigator.clipboard.writeText(document.getElementById('capText').textContent).then(function () {
+            document.getElementById('capBtn').textContent = '✓ COPIADO';
+            setTimeout(function () { document.getElementById('capBtn').textContent = 'COPIAR CAPTION'; }, 2000);
+          });
+        });
+      }
+      stage.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // BANCOS DE IMÁGENES POR PILAR (URLs directas de Unsplash - SIEMPRE funcionan)
+    // Cargamos las imágenes en resolución premium (1920x1920) para que al exportar no se pixelicen
+    var u = 'https://images.unsplash.com/photo-';
+    var s = '?w=1920&h=1920&fit=crop&crop=center&q=85';
+    var PILAR_IMGS = {
+      antihumo: [
+        u + '1534438327276-14e5300c3a48' + s, // gym interior
+        u + '1517836357463-d25dfeac3438' + s, // levantando pesas
+        u + '1571019614242-c5c5dee9f50b' + s, // peso muerto
+        u + '1556746834-cbb4a38ee593' + s,    // entrenamiento con pesas
+        u + '1580086319619-3ed498161c77' + s,  // kettlebell
+        u + '1599058917212-d750089bc07e' + s   // gym intenso
+      ],
+      efmoderna: [
+        u + '1526506118085-471d8e3e1682' + s,  // deporte al aire libre
+        u + '1552674605-db6ffd4facb5' + s,     // fitness grupal
+        u + '1517963879433-6ad2b056d712' + s,  // natación
+        u + '1540497077202-7c8a3999166f' + s,  // entrenamiento grupal
+        u + '1596568362753-37002d4b3c4a' + s,  // cancha deportiva
+        u + '1571019613454-1cb2f99b2d8b' + s   // corriendo en pista
+      ],
+      saludmental: [
+        u + '1518611012118-696072aa579a' + s,  // yoga
+        u + '1583454110551-21f2fa2afe61' + s,  // stretching
+        u + '1507398941214-572c25f4b1dc' + s,  // corriendo en naturaleza
+        u + '1549060279-7e168fcee0c2' + s,     // cardio relajado
+        u + '1544367567584-643b1327e55d' + s,  // meditación
+        u + '1506126613408-eca07ce68773' + s   // caminata naturaleza
+      ],
+      realpeople: [
+        u + '1581009146145-b5ef050c2e1e' + s,  // mujer entrenando
+        u + '1574680096145-d05b474e2155' + s,  // gym workout
+        u + '1579758629938-03607ccdbaba' + s,  // home workout
+        u + '1583454155184-870a1f63aebc' + s,  // ejercicio casual
+        u + '1550345332-09e3ac987658' + s,     // gym equipamiento
+        u + '1574680178050-55c6a6a96e0a' + s   // entrenamiento real
+      ],
+      ciencia: [
+        u + '1576678927484-cc907957088c' + s,  // ejercicio forma
+        u + '1605296867304-46d5465a13f1' + s,  // pushups técnica
+        u + '1594737625785-a6cbdabd333c' + s,  // pesas detalle
+        u + '1597452485669-2c7bb5fef90d' + s,  // anatomía fitness
+        u + '1532384748853-8f54a8f476e2' + s,  // laboratorio/ciencia
+        u + '1559757175-5700d4002cdc' + s      // data/medición
+      ],
+      rendimiento: [
+        u + '1541534741688-6078c6bfb5c5' + s,  // running intenso
+        u + '1517836357463-d25dfeac3438' + s,  // pesas pesadas
+        u + '1571019614242-c5c5dee9f50b' + s,  // deadlift
+        u + '1534438327276-14e5300c3a48' + s,  // gym pro
+        u + '1556746834-cbb4a38ee593' + s,     // weight training
+        u + '1580086319619-3ed498161c77' + s   // kettlebell intenso
+      ]
+    };
+    var _pilarImgIdx = {};
+    function getNextFitnessImg() {
+      if (UNSPLASH_CACHE.length > 0) return UNSPLASH_CACHE.pop();
+      var pilar = STATE.pilar || 'antihumo';
+      var imgs = PILAR_IMGS[pilar] || PILAR_IMGS.antihumo;
+      if (!_pilarImgIdx[pilar]) _pilarImgIdx[pilar] = 0;
+      var url = imgs[_pilarImgIdx[pilar] % imgs.length];
+      _pilarImgIdx[pilar]++;
+      return url;
+    }
+    function getRandomFitnessImg() {
+      if (UNSPLASH_CACHE.length > 0) {
+        // Tomar una random del cache pero sin sacarla (para el botón refresh)
+        return UNSPLASH_CACHE[Math.floor(Math.random() * UNSPLASH_CACHE.length)];
+      }
+      var pilar = STATE.pilar || 'antihumo';
+      var imgs = PILAR_IMGS[pilar] || PILAR_IMGS.antihumo;
+      return imgs[Math.floor(Math.random() * imgs.length)];
+    }
+
+
+    function renderPost(d, wrap) {
+      wrap.className = 'canvas-wrap post-sq' + (STATE.style === 'light' ? ' light-mode' : '');
+      var imgHtml = '';
+      if (STATE.useImages) {
+        var url = getNextFitnessImg();
+        imgHtml = '<div class="post-img" style="background-image:url(\'' + url + '\')"></div><div class="post-overlay"></div><button class="refresh-img" onclick="refreshElImg(this)">🔄</button>';
+      }
+      var logoSrc = STATE.style === 'light' ? (LOGO_DARK || 'logo-dark.png') : (LOGO_LIGHT || 'logo-light.png');
+      var logoHtml = '<img class="post-logo" src="' + logoSrc + '" onerror="this.style.display=\'none\'" alt="Logo">';
+      wrap.innerHTML = imgHtml + logoHtml + '<div class="bg-grid"></div><div class="left-bar"></div><div class="deco">' + esc(d.deco || '') + '</div><div class="pilar-tag">' + esc(d.pilar_tag || '') + '</div><div class="headline">' + esc(d.headline || '') + '</div><div class="sub">' + esc(d.sub || '') + '</div><div class="footer"><span class="handle">@prof.olivapablo</span></div>';
+    }
+
+    function renderStory(d, wrap) {
+      wrap.className = 'canvas-wrap post-story' + (STATE.style === 'light' ? ' light-mode' : '');
+      var imgHtml = '';
+      if (STATE.useImages) {
+        var url = getNextFitnessImg();
+        imgHtml = '<div class="post-img" style="background-image:url(\'' + url + '\')"></div><div class="post-overlay"></div><button class="refresh-img" onclick="refreshElImg(this)">🔄</button>';
+      }
+      var logoSrc = STATE.style === 'light' ? (LOGO_DARK || 'logo-dark.png') : (LOGO_LIGHT || 'logo-light.png');
+      var logoHtml = '<div class="story-header"><img class="story-logo" src="' + logoSrc + '" onerror="this.style.display=\'none\'" alt="Logo"></div>';
+
+      wrap.innerHTML = imgHtml + '<div class="blob1"></div><div class="blob2"></div><div class="deco-q">?</div>' +
+        logoHtml +
+        '<div class="story-content">' +
+        '<div class="s-label">' + esc(d.label || '') + '</div>' +
+        '<div class="s-q">' + esc(d.question || '') + '</div>' +
+        '<p class="s-body">' + esc(d.body || '') + '</p>' +
+        '</div>' +
+        '<div class="story-footer">' +
+        '<div class="s-handle">@prof.olivapablo</div>' +
+        '</div>';
+    }
+
+    function renderCarousel(d, wrap, stage) {
+      SLIDES.list = Array.isArray(d.slides) ? d.slides.slice() : [];
+      if (SLIDES.list.length > 0) {
+        SLIDES.list.push({
+          title: '¿TE SIRVIÓ? HACÉ ESTO.',
+          body: 'Cada acción hace que este contenido llegue a más personas reales.',
+          isClosingSlide: true
+        });
+      }
+      SLIDES.current = 0;
+      if (!SLIDES.list.length) { showToast('No se generaron slides. Intentá de nuevo.'); return; }
+      wrap.className = 'canvas-wrap post-car' + (STATE.style === 'light' ? ' light-mode' : '');
+      wrap.id = 'carWrap';
+      drawSlide(0);
+
+      var nav = document.createElement('div');
+      nav.className = 'car-nav';
+      var pBtn = document.createElement('button'); pBtn.className = 'nav-b'; pBtn.textContent = '←';
+      pBtn.addEventListener('click', function () { moveSlide(-1); });
+      var ind = document.createElement('span'); ind.className = 'nav-ind'; ind.id = 'navInd'; ind.textContent = '1 / ' + SLIDES.list.length;
+      var nBtn = document.createElement('button'); nBtn.className = 'nav-b'; nBtn.textContent = '→';
+      nBtn.addEventListener('click', function () { moveSlide(1); });
+      nav.appendChild(pBtn); nav.appendChild(ind); nav.appendChild(nBtn);
+      var cap = stage.querySelector('.caption-box');
+      if (cap) stage.insertBefore(nav, cap); else stage.appendChild(nav);
+    }
+
+    function drawSlide(idx) {
+      var s = SLIDES.list[idx];
+      if (!s) return;
+      var wrap = document.getElementById('carWrap');
+      if (!wrap) return;
+      var total = SLIDES.list.length;
+      var dots = SLIDES.list.map(function (_, i) { return '<div class="car-dot' + (i === idx ? ' on' : '') + '"></div>'; }).join('');
+
+      if (s.isClosingSlide) {
+        // Forzamos al contenedor a remover "light-mode" para que herede la estética oscura premium nativa
+        wrap.classList.remove('light-mode');
+
+        var bgGradient = 'linear-gradient(135deg, #010B0E 0%, #00120b 50%, #080808 100%)';
+        var logoSrc = LOGO_LIGHT || 'logo-light.png';
+        var logoHtml = logoSrc
+          ? '<img class="car-closing-logo" src="' + logoSrc + '" onerror="this.style.display=\'none\'" alt="Logo">'
+          : '<div class="car-closing-logo-placeholder">PG</div>';
+
+        wrap.innerHTML = '<div class="car-bg" style="background:' + bgGradient + '"></div><div class="car-num">' + (idx + 1) + ' / ' + total + '</div><div class="closing-decorations"><div class="bg-grid" style="opacity:0.12;display:block"></div><div class="closing-circle-blur"></div><div class="closing-diagonal-line l1"></div><div class="closing-diagonal-line l2"></div><div class="closing-geom-square"></div></div><div class="car-content closing-layout"><div class="car-prog">' + dots + '</div><div class="closing-logo-wrap">' + logoHtml + '</div><div class="closing-title">' + esc(s.title || '') + '</div><div class="closing-actions"><div class="action-item"><span class="action-icon">❤️</span><span class="action-text">LIKE</span></div><div class="action-dot">•</div><div class="action-item"><span class="action-icon">💬</span><span class="action-text">COMENTÁ</span></div><div class="action-dot">•</div><div class="action-item"><span class="action-icon">📤</span><span class="action-text">COMPARTÍ</span></div><div class="action-dot">•</div><div class="action-item"><span class="action-icon">🔖</span><span class="action-text">GUARDALO</span></div></div><p class="closing-body">' + esc(s.body || '') + '</p><div class="closing-footer"><div class="closing-divider"></div><div class="closing-handle">@prof.olivapablo</div></div></div>';
+
+        var ind = document.getElementById('navInd');
+        if (ind) ind.textContent = (idx + 1) + ' / ' + total;
+        return;
+      }
+
+      // Restauramos el estado de light-mode si corresponde
+      var isLight = STATE.style === 'light';
+      if (isLight) {
+        wrap.classList.add('light-mode');
+      } else {
+        wrap.classList.remove('light-mode');
+      }
+
+      var defaultBg = isLight ? '#F2F5F3' : '#010B0E';
+      var bgEnd = isLight ? '#F2F5F3' : '#080808';
+      var bg = (s.bgHex && /^#[0-9a-fA-F]{3,6}$/.test(s.bgHex)) ? s.bgHex : defaultBg;
+
+      var imgHtml = '';
+      if (STATE.useImages) {
+        var url = getNextFitnessImg();
+        imgHtml = '<div class="post-img" style="background-image:url(\'' + url + '\')"></div><div class="post-overlay"></div><button class="refresh-img" onclick="refreshElImg(this)">🔄</button>';
+      }
+
+      // Si es light mode y el bgHex de la IA es oscuro, lo forzamos a light para coherencia
+      if (isLight && bg.length === 7 && parseInt(bg.substring(1, 3), 16) < 100) bg = '#F2F5F3';
+
+      var isLast = s.isLast === true || idx === total - 1;
+      var bgGradient = '';
+
+      if (isLight) {
+        bgGradient = imgHtml ? 'linear-gradient(to bottom, rgba(242, 245, 243, 0.05) 0%, rgba(242, 245, 243, 0.3) 30%, rgba(242, 245, 243, 0.8) 55%, #F2F5F3 90%)' : '#F2F5F3';
+      } else {
+        bgGradient = imgHtml ? 'linear-gradient(to bottom, transparent, rgba(1,11,14,0.95))' : 'linear-gradient(135deg,' + bg + ' 0%,' + bgEnd + ' 100%)';
+      }
+
+      var logoSrc = isLight ? (LOGO_DARK || 'logo-dark.png') : (LOGO_LIGHT || 'logo-light.png');
+      var logoHtml = '<img class="post-logo" src="' + logoSrc + '" onerror="this.style.display=\'none\'" alt="Logo">';
+
+      wrap.innerHTML = imgHtml + logoHtml + '<div class="car-bg" style="background:' + bgGradient + '"></div><div class="car-num">' + (idx + 1) + ' / ' + total + '</div><div class="car-content"><div class="car-prog">' + dots + '</div><div class="car-title">' + esc(s.title || '') + '</div><div class="car-body">' + esc(s.body || '') + '</div><div class="car-handle">@prof.olivapablo</div></div>' + (isLast ? '' : `<div class="car-arrow">→</div>`);
+      var ind = document.getElementById('navInd');
+      if (ind) ind.textContent = (idx + 1) + ' / ' + total;
+    }
+
+    function moveSlide(dir) {
+      var next = SLIDES.current + dir;
+      if (next < 0 || next >= SLIDES.list.length) return;
+      SLIDES.current = next;
+      drawSlide(next);
+    }
+
+    function downloadElement(el, name) {
+      // Ocultar boton refresh temporalmente
+      var rb = el.querySelector('.refresh-img');
+      if (rb) rb.style.display = 'none';
+
+      // Esperamos a que todas las fuentes cargadas en el documento estén completamente listas para evitar que html2canvas las ignore
+      return document.fonts.ready.then(function () {
+        // Calculamos una escala dinámica para garantizar la máxima resolución posible:
+        // - Stories de Instagram: estándar de 1080px de ancho (resulta en 1080x1920)
+        // - Posts/Carruseles: estándar de alta resolución de 1920px de ancho (resulta en 1920x1920)
+        var targetWidth = el.classList.contains('post-story') ? 1080 : 1920;
+        var currentWidth = el.offsetWidth || (el.classList.contains('post-story') ? 270 : 480);
+        var dynamicScale = targetWidth / currentWidth;
+
+        // Si la escala calculada es inválida o menor a 2, usamos un mínimo de 4 para ultra alta calidad
+        if (isNaN(dynamicScale) || dynamicScale < 2) {
+          dynamicScale = 4;
+        }
+
+        return html2canvas(el, {
+          scale: dynamicScale,
+          useCORS: true,
+          backgroundColor: null,
+          logging: false
+        }).then(function (canvas) {
+          if (rb) rb.style.display = 'flex';
+
+          var dataUrl = canvas.toDataURL('image/png', 1.0);
+
+          // Inyectar imagen de alta resolución en el modal
+          var img = document.createElement('img');
+          img.src = dataUrl;
+          img.style.width = '100%';
+          img.style.height = '100%';
+          img.style.objectFit = 'contain';
+          img.style.borderRadius = '8px';
+
+          var container = document.getElementById('modalImageContainer');
+          container.innerHTML = '';
+          container.appendChild(img);
+
+          // Ajustar proporción del contenedor según el tipo
+          if (el.classList.contains('post-story')) {
+            container.style.aspectRatio = '9/16';
+            container.style.maxWidth = '180px';
+          } else {
+            container.style.aspectRatio = '1/1';
+            container.style.maxWidth = '280px';
+          }
+
+          // Mostrar modal de descarga premium
+          document.getElementById('downloadModal').style.display = 'flex';
+
+          // Intento de descarga automática en PC
+          try {
+            var link = document.createElement('a');
+            link.download = name + '.png';
+            link.href = dataUrl;
+            link.click();
+          } catch (e) {
+            console.log("Auto-download blocked by device, using premium modal interaction.", e);
+          }
+        });
+      });
+    }
+
+    function refreshElImg(btn) {
+      var parent = btn.parentElement;
+      var img = parent.querySelector('.post-img');
+      if (!img) return;
+      var newUrl = getRandomFitnessImg();
+      img.style.backgroundImage = 'url("' + newUrl + '")';
+    }
+
+    function showToast(msg) {
+      var t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(function () { t.classList.remove('show'); }, 3500);
+    }
+
+    function esc(str) {
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function sanitizeJsonString(str) {
+      // 1. Extraer solo el bloque JSON (descarta texto conversacional antes o después)
+      var firstBrace = str.indexOf('{');
+      var lastBrace = str.lastIndexOf('}');
+      if (firstBrace !== -1 && lastBrace !== -1 && lastBrace >= firstBrace) {
+        str = str.substring(firstBrace, lastBrace + 1);
+      }
+
+      var inString = false;
+      var escaped = false;
+      var result = '';
+      for (var i = 0; i < str.length; i++) {
+        var char = str[i];
+        if (char === '\\' && inString) {
+          escaped = !escaped;
+          result += char;
+        } else if (char === '"' && !escaped) {
+          inString = !inString;
+          result += char;
+          escaped = false;
+        } else {
+          if (inString && (char === '\n' || char === '\r')) {
+            result += '\\n';
+          } else if (inString && char === '\t') {
+            result += '\\t';
+          } else {
+            result += char;
+          }
+          escaped = false;
+        }
+      }
+      return result;
+    }
+
+    // REGISTRAR SERVICE WORKER PARA PWA (APP INSTALABLE)
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('./sw.js')
+          .then(function (reg) {
+            console.log('Service Worker registrado con éxito para POG PWA:', reg.scope);
+          })
+          .catch(function (err) {
+            console.error('Error al registrar Service Worker:', err);
+          });
+      });
+    }
+  </script>
+
+  <!-- Modal de Descarga en Alta Resolución (Mobile y PC) -->
+  <div id="downloadModal"
+    style="position:fixed;inset:0;background:rgba(1, 11, 14, 0.95);z-index:10000;display:none;flex-direction:column;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(12px)">
+    <div
+      style="width:100%;max-width:380px;background:#001F14;border:1.5px solid #005030;border-radius:18px;padding:24px;display:flex;flex-direction:column;align-items:center;gap:16px;box-shadow:0 20px 50px rgba(0,0,0,0.9)">
+      <h3 style="font-family:'Jockey One',sans-serif;font-size:22px;color:#00D084;letter-spacing:1px;text-align:center">
+        ¡DISEÑO LISTO EN ALTA CALIDAD!</h3>
+      <p style="font-size:11px;color:#8BA69C;text-align:center;line-height:1.6;margin-bottom:4px">
+        <strong>Móvil / Tablet:</strong> Mantén presionada la imagen abajo y selecciona <strong>"Guardar en
+          Fotos"</strong> o <strong>"Descargar Imagen"</strong>.<br>
+        <strong>PC:</strong> Haz clic derecho sobre la imagen y elige <strong>"Guardar imagen como..."</strong> (o usa
+        la descarga automática).
+      </p>
+      <div id="modalImageContainer"
+        style="width:100%;max-width:280px;aspect-ratio:1/1;border-radius:12px;overflow:hidden;box-shadow:0 12px 30px rgba(0,0,0,0.6);border:1.5px solid #005030;background:#010B0E;display:flex;align-items:center;justify-content:center">
+        <!-- Imagen inyectada dinámicamente -->
+      </div>
+      <button id="closeModalBtn"
+        style="background:#FF2D2D;color:#fff;border:none;border-radius:10px;padding:12px 28px;font-family:'Jockey One',sans-serif;font-size:18px;font-weight:700;cursor:pointer;width:100%;transition:all 0.15s;box-shadow:0 4px 12px rgba(255,45,45,0.2)">CERRAR</button>
+    </div>
+  </div>
+</body>
+
+</html>
