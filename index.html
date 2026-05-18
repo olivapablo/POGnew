@@ -1192,7 +1192,7 @@
       .post-sq,
       .post-car {
         width: 480px;
-        height: 480px
+        height: 600px;
       }
     }
 
@@ -1202,8 +1202,8 @@
       .post-car {
         width: calc(100vw - 32px);
         max-width: 420px;
-        height: calc(100vw - 32px);
-        max-height: 420px
+        height: calc((100vw - 32px) * 1.25);
+        max-height: 525px;
       }
     }
 
@@ -2465,22 +2465,25 @@
       // Esperamos a que todas las fuentes cargadas en el documento estén completamente listas para evitar que html2canvas las ignore
       return document.fonts.ready.then(function () {
         // Calculamos una escala dinámica para garantizar la máxima resolución posible:
-        // - Stories de Instagram: estándar de 1080px de ancho (resulta en 1080x1920)
-        // - Posts/Carruseles: estándar de alta resolución de 1920px de ancho (resulta en 1920x1920)
-        var targetWidth = el.classList.contains('post-story') ? 1080 : 1920;
+        // - Posts/Carruseles: estándar de 1080px de ancho (resulta en 1080x1350)
+        var targetWidth = 1080;
         var currentWidth = el.offsetWidth || (el.classList.contains('post-story') ? 270 : 480);
         var dynamicScale = targetWidth / currentWidth;
 
-        // Si la escala calculada es inválida o menor a 2, usamos un mínimo de 4 para ultra alta calidad
+        // Si la escala calculada es inválida o menor a 2, usamos un mínimo de 2.25
         if (isNaN(dynamicScale) || dynamicScale < 2) {
-          dynamicScale = 4;
+          dynamicScale = 2.25;
         }
 
         return html2canvas(el, {
           scale: dynamicScale,
           useCORS: true,
           backgroundColor: null,
-          logging: false
+          logging: false,
+          width: el.offsetWidth,
+          height: el.offsetHeight,
+          scrollX: 0,
+          scrollY: 0
         }).then(function (canvas) {
           if (rb) rb.style.display = 'flex';
 
@@ -2503,8 +2506,8 @@
             container.style.aspectRatio = '9/16';
             container.style.maxWidth = '180px';
           } else {
-            container.style.aspectRatio = '1/1';
-            container.style.maxWidth = '280px';
+            container.style.aspectRatio = '4/5';
+            container.style.maxWidth = '240px';
           }
 
           // Mostrar modal de descarga premium
