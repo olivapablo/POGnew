@@ -1523,24 +1523,22 @@
       text-align: center;
       height: 100%;
       width: 100%;
-      max-height: 100%;
-      padding: 40px 32px !important;
+      padding: 24px 20px !important;
       position: relative;
       z-index: 2;
       box-sizing: border-box;
-      overflow: hidden;
     }
 
     .closing-logo-wrap {
-      height: 65px;
+      height: 48px;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-bottom: 4px;
+      margin-bottom: 2px;
     }
 
     .car-closing-logo {
-      height: 56px;
+      height: 42px;
       width: auto;
       object-fit: contain;
       filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
@@ -1560,13 +1558,13 @@
 
     .closing-title {
       font-family: 'Jockey One', sans-serif;
-      font-size: 28px;
+      font-size: 24px;
       font-weight: 900;
       color: #fff;
       text-transform: uppercase;
       letter-spacing: 1.5px;
-      margin-top: 6px;
-      margin-bottom: 8px;
+      margin-top: 4px;
+      margin-bottom: 6px;
       text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
     }
 
@@ -1577,14 +1575,15 @@
 
     .closing-actions {
       display: flex;
+      flex-wrap: wrap;
       align-items: center;
       justify-content: center;
-      gap: 12px;
+      gap: 8px;
       background: rgba(255, 255, 255, 0.03);
       border: 1px solid rgba(255, 255, 255, 0.06);
-      padding: 10px 20px;
+      padding: 8px 16px;
       border-radius: 40px;
-      margin: 12px 0;
+      margin: 8px 0;
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     }
 
@@ -1628,11 +1627,11 @@
 
     .closing-body {
       font-family: 'Montserrat', sans-serif;
-      font-size: 12px;
+      font-size: 11px;
       color: #8BA69C;
-      line-height: 1.6;
-      max-width: 90%;
-      margin-bottom: 16px;
+      line-height: 1.5;
+      max-width: 95%;
+      margin-bottom: 12px;
       font-weight: 500;
       text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
     }
@@ -1647,14 +1646,14 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      margin-top: 15px;
+      margin-top: 10px;
     }
 
     .closing-divider {
       height: 1px;
       width: 60%;
       background: linear-gradient(90deg, transparent 0%, rgba(0, 208, 132, 0.2) 50%, transparent 100%);
-      margin-bottom: 12px;
+      margin-bottom: 8px;
     }
 
     .light-mode .closing-divider {
@@ -2559,8 +2558,8 @@
       var parent = btn.parentElement;
       var img = parent.querySelector('.post-img');
       if (!img) return;
-      
-      var finishRefresh = function(url) {
+
+      var finishRefresh = function (url) {
         img.style.backgroundImage = 'url("' + url + '")';
         btn.textContent = '🔄';
         if (typeof slideIdx !== 'undefined' && SLIDES.list[slideIdx]) {
@@ -2573,7 +2572,7 @@
       if (UNSPLASH_CACHE.length === 0 && UNSPLASH_KEY) {
         btn.textContent = '⏳';
         var searchTerm = CURRENT_DATA.image_search_term || '';
-        fetchUnsplashImages(searchTerm).then(function() {
+        fetchUnsplashImages(searchTerm).then(function () {
           finishRefresh(getNextFitnessImg());
         });
       } else {
