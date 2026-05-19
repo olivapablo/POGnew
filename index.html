@@ -2333,9 +2333,9 @@
         var url = getNextFitnessImg();
         imgHtml = '<div class="post-img" style="background-image:url(\'' + url + '\')"></div><div class="post-overlay"></div><button class="refresh-img" onclick="refreshElImg(this)">🔄</button>';
       }
-      var logoSrc = STATE.style === 'light' ? (LOGO_DARK || 'logo-dark.png') : (LOGO_LIGHT || 'logo-light.png');
-      var logoHtml = '<img class="post-logo" src="' + logoSrc + '" onerror="this.style.display=\'none\'" alt="Logo">';
-      wrap.innerHTML = imgHtml + logoHtml + '<div class="bg-grid"></div><div class="left-bar"></div><div class="deco">' + esc(d.deco || '') + '</div><div class="pilar-tag">' + esc(d.pilar_tag || '') + '</div><div class="headline">' + esc(d.headline || '') + '</div><div class="sub">' + esc(d.sub || '') + '</div><div class="footer"><span class="handle">@prof.olivapablo</span></div>';
+      var logoSrc = STATE.style === 'light' ? (LOGO_DARK || './logo-dark.png.png') : (LOGO_LIGHT || './logo-light.png.png');
+      var logoHtml = '<img class="post-logo" src="' + logoSrc + '" onerror="console.log(\'Logo failed to load:\', this.src); this.style.display=\'none\'" alt="Logo">';
+      wrap.innerHTML = imgHtml + logoHtml + '<div class="bg-grid"></div><div class="left-bar"></div><div class="headline">' + esc(d.headline || '') + '</div><div class="sub">' + esc(d.sub || '') + '</div><div class="footer"><span class="handle">@prof.olivapablo</span></div>';
     }
 
     function renderStory(d, wrap) {
@@ -2345,7 +2345,7 @@
         var url = getNextFitnessImg();
         imgHtml = '<div class="post-img" style="background-image:url(\'' + url + '\')"></div><div class="post-overlay"></div><button class="refresh-img" onclick="refreshElImg(this)">🔄</button>';
       }
-      var logoSrc = STATE.style === 'light' ? (LOGO_DARK || 'logo-dark.png') : (LOGO_LIGHT || 'logo-light.png');
+      var logoSrc = STATE.style === 'light' ? (LOGO_DARK || './logo-dark.png.png') : (LOGO_LIGHT || './logo-light.png.png');
       var logoHtml = '<div class="story-header"><img class="story-logo" src="' + logoSrc + '" onerror="this.style.display=\'none\'" alt="Logo"></div>';
 
       wrap.innerHTML = imgHtml + '<div class="blob1"></div><div class="blob2"></div><div class="deco-q">?</div>' +
@@ -2400,7 +2400,7 @@
         wrap.classList.remove('light-mode');
 
         var bgGradient = 'linear-gradient(135deg, #010B0E 0%, #00120b 50%, #080808 100%)';
-        var logoSrc = LOGO_LIGHT || 'logo-light.png';
+        var logoSrc = LOGO_LIGHT || './logo-light.png.png';
         var logoHtml = logoSrc
           ? '<img class="car-closing-logo" src="' + logoSrc + '" onerror="this.style.display=\'none\'" alt="Logo">'
           : '<div class="car-closing-logo-placeholder">PG</div>';
@@ -2442,7 +2442,7 @@
         bgGradient = imgHtml ? 'linear-gradient(to bottom, transparent, rgba(1,11,14,0.95))' : 'linear-gradient(135deg,' + bg + ' 0%,' + bgEnd + ' 100%)';
       }
 
-      var logoSrc = isLight ? (LOGO_DARK || 'logo-dark.png') : (LOGO_LIGHT || 'logo-light.png');
+      var logoSrc = isLight ? (LOGO_DARK || './logo-dark.png.png') : (LOGO_LIGHT || './logo-light.png.png');
       var logoHtml = '<img class="post-logo" src="' + logoSrc + '" onerror="this.style.display=\'none\'" alt="Logo">';
 
       wrap.innerHTML = imgHtml + logoHtml + '<div class="car-bg" style="background:' + bgGradient + '"></div><div class="car-num">' + (idx + 1) + ' / ' + total + '</div><div class="car-content"><div class="car-prog">' + dots + '</div><div class="car-title">' + esc(s.title || '') + '</div><div class="car-body">' + esc(s.body || '') + '</div><div class="car-handle">@prof.olivapablo</div></div>' + (isLast ? '' : `<div class="car-arrow">→</div>`);
