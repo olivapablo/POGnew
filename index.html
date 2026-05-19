@@ -853,6 +853,22 @@
       text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8), 0 4px 20px rgba(0, 0, 0, 0.4);
     }
 
+    .post-sq .headline::after,
+    .car-title::after {
+      content: '';
+      display: block;
+      width: 50px;
+      height: 4px;
+      background: var(--accent);
+      margin-top: 16px;
+      border-radius: 2px;
+    }
+
+    .post-sq.light-mode .headline::after,
+    .post-car.light-mode .car-title::after {
+      background: #008055;
+    }
+
     @media(min-width:860px) {
       .post-sq .headline {
         font-size: 46px
@@ -2077,13 +2093,14 @@
         '- Sustituí cualquier "para ti" por "para vos".\n' +
         '- El lenguaje debe ser directo, picante, contundente y con la terminología natural de gimnasio/entrenamiento en Argentina. Cero español neutro.\n\n' +
 
-        'REGLA CRÍTICA: Los hashtags (#) van ÚNICAMENTE dentro del campo caption. PROHIBIDO poner hashtags en headline, sub, body, title, question o cualquier otro campo visual.\n\n';
+        'REGLA CRÍTICA: Los hashtags (#) van ÚNICAMENTE dentro del campo caption. PROHIBIDO poner hashtags en headline, sub, body, title, question o cualquier otro campo visual.\n' +
+        'REGLA SOBRE EL CAPTION: En el campo "caption" del JSON, OBLIGATORIAMENTE tenés que generar y escribir el texto final del posteo acorde al tema. ¡NO COPIES las instrucciones en el JSON, generá el texto real para que el usuario lo pueda publicar!\n\n';
 
       if (STATE.type === 'post') {
-        return ctx + 'Generá un post cuadrado de Instagram para PG.\nResponde SOLO con JSON válido, sin backticks ni texto extra:\n{"pilar_tag":"nombre del pilar en mayúsculas 1-3 palabras","deco":"número o símbolo decorativo grande (ej: 80%, X, 0)","headline":"titular impactante en mayúsculas máx 7 palabras SIN hashtags","sub":"frase de apoyo 1-2 oraciones SIN hashtags","caption":"caption para descripción de Instagram (Caption - listo para copiar): DEBE aplicar estrictamente las reglas de SEO, viralidad y legibilidad móvil definidas en el contexto. Primera línea como gancho de búsqueda potente para detener el scroll, oraciones cortas, párrafos de máximo 2 líneas, saltos de línea estratégicos para mobile, palabras clave de alto volumen relacionadas integradas, y al final exactamente entre 8 y 10 hashtags específicos combinando volumen, nicho (#educacionfisica #antihumofitness #pogfitness) y español/inglés. Tono PG.","image_search_term":"3-4 specific English keywords for Unsplash image search matching the topic of this post exactly, comma-separated (e.g. martial arts, boxing, kickboxing)"}';
+        return ctx + 'Generá un post cuadrado de Instagram para PG.\nResponde SOLO con JSON válido, sin backticks ni texto extra:\n{"pilar_tag":"nombre del pilar en mayúsculas 1-3 palabras","deco":"número o símbolo decorativo grande (ej: 80%, X, 0)","headline":"titular impactante en mayúsculas máx 7 palabras SIN hashtags","sub":"frase de apoyo 1-2 oraciones SIN hashtags","caption":"[ESCRIBÍ ACÁ EL CAPTION FINAL Y REAL. Aplicá las reglas de SEO, gancho potente, párrafos cortos y hashtags. Tiene que ser el texto listo para publicar acorde al tema]","image_search_term":"3-4 specific English keywords for Unsplash image search matching the topic of this post exactly, comma-separated (e.g. martial arts, boxing, kickboxing)"}';
       }
       if (STATE.type === 'story') {
-        return ctx + 'Generá una Story de Instagram para PG.\nResponde SOLO con JSON válido, sin backticks ni texto extra:\n{"label":"etiqueta corta en mayúsculas SIN hashtags","question":"afirmación impactante en mayúsculas máx 6 palabras SIN hashtags","body":"Explicación directa, rigurosa y de gran valor educativo redactada para ocupar de 3 a 5 líneas como máximo (2-3 oraciones contundentes). Tono PG.","cta":"llamada a acción corta","caption":"caption para descripción de Instagram (Caption - listo para copiar): DEBE aplicar estrictamente las reglas de SEO, viralidad y legibilidad móvil definidas en el contexto. Primera línea como gancho de búsqueda potente para detener el scroll, oraciones cortas, párrafos de máximo 2 líneas, saltos de línea estratégicos para mobile, palabras clave de alto volumen relacionadas integradas, y al final exactamente entre 8 y 10 hashtags específicos combinando volumen, nicho (#educacionfisica #antihumofitness #pogfitness) y español/inglés. Tono PG.","image_search_term":"3-4 specific English keywords for Unsplash image search matching the topic of this story exactly, comma-separated (e.g. martial arts, boxing, kickboxing)"}';
+        return ctx + 'Generá una Story de Instagram para PG.\nResponde SOLO con JSON válido, sin backticks ni texto extra:\n{"label":"etiqueta corta en mayúsculas SIN hashtags","question":"afirmación impactante en mayúsculas máx 6 palabras SIN hashtags","body":"Explicación directa, rigurosa y de gran valor educativo redactada para ocupar de 3 a 5 líneas como máximo (2-3 oraciones contundentes). Tono PG.","cta":"llamada a acción corta","caption":"[ESCRIBÍ ACÁ EL CAPTION FINAL Y REAL. Aplicá las reglas de SEO, gancho potente, párrafos cortos y hashtags. Tiene que ser el texto listo para publicar acorde al tema]","image_search_term":"3-4 specific English keywords for Unsplash image search matching the topic of this story exactly, comma-separated (e.g. martial arts, boxing, kickboxing)"}';
       }
       if (STATE.type === 'carousel') {
         return ctx + 'Generá un carrusel de EXACTAMENTE 6 slides para Instagram de PG.\n' +
@@ -2098,7 +2115,7 @@
           '{"tag":"EL GIRO","title":"TÍTULO","body":"El mito a romper o giro inesperado, redactada para ocupar entre 3 y 5 líneas de texto (2-3 oraciones contundentes).","bgHex":"#001F14","isLast":false},' +
           '{"tag":"APLICACIÓN","title":"TÍTULO","body":"Aplicación práctica y concreta para el lector, redactada para ocupar entre 3 y 5 líneas de texto (2-3 oraciones contundentes).","bgHex":"#010B0E","isLast":false},' +
           '{"tag":"CONCLUSIÓN","title":"TÍTULO","body":"Cierre directo y llamada a la acción potente, redactada para ocupar entre 3 y 5 líneas de texto (2-3 oraciones contundentes).","bgHex":"#001F14","isLast":true}' +
-          '],"caption":"caption para descripción de Instagram (Caption - listo para copiar): DEBE aplicar estrictamente las reglas de SEO, viralidad y legibilidad móvil definidas en el contexto. Primera línea como gancho de búsqueda potente para detener el scroll, oraciones cortas, párrafos de máximo 2 líneas, saltos de línea estratégicos para móvil, palabras clave de alto volumen relacionadas integradas, y al final exactamente entre 8 y 10 hashtags específicos combinando volumen, nicho (#educacionfisica #antihumofitness #pogfitness) y español/inglés. Tono PG.","image_search_term":"3-4 specific English keywords for Unsplash image search matching the topic of this carousel exactly, comma-separated (e.g. martial arts, boxing, kickboxing)"}';
+          '],"caption":"[ESCRIBÍ ACÁ EL CAPTION FINAL Y REAL. Aplicá las reglas de SEO, gancho potente, párrafos cortos y hashtags. Tiene que ser el texto listo para publicar acorde al tema]","image_search_term":"3-4 specific English keywords for Unsplash image search matching the topic of this carousel exactly, comma-separated (e.g. martial arts, boxing, kickboxing)"}';
       }
     }
 
