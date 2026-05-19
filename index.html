@@ -710,7 +710,7 @@
 
     /* CANVAS */
     .canvas-wrap {
-      border-radius: 14px;
+      border-radius: 0;
       overflow: hidden;
       box-shadow: 0 20px 60px rgba(0, 0, 0, .6);
       flex-shrink: 0
@@ -1458,14 +1458,15 @@
 
     .closing-circle-blur {
       position: absolute;
-      width: 320px;
-      height: 320px;
+      width: 400px;
+      height: 400px;
       border-radius: 50%;
-      background: radial-gradient(circle, rgba(0, 208, 132, 0.08) 0%, transparent 70%);
-      filter: blur(50px);
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
+      background: radial-gradient(circle, rgba(0, 208, 132, 0.08) 0%, rgba(0, 208, 132, 0.03) 40%, transparent 70%);
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      margin: auto;
     }
 
     .light-mode .closing-circle-blur {
@@ -1501,9 +1502,12 @@
       width: 240px;
       height: 240px;
       border: 1px dashed rgba(255, 255, 255, 0.02);
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%) rotate(15deg);
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      margin: auto;
+      transform: rotate(15deg);
     }
 
     .light-mode .closing-geom-square {
@@ -1518,10 +1522,12 @@
       text-align: center;
       height: 100%;
       width: 100%;
+      max-height: 100%;
       padding: 40px 32px !important;
       position: relative;
       z-index: 2;
       box-sizing: border-box;
+      overflow: hidden;
     }
 
     .closing-logo-wrap {
@@ -2139,7 +2145,8 @@
         var data = await r.json();
         if (Array.isArray(data)) {
           // Usar url raw con parámetros de alta resolución (1920px de ancho, calidad 85%)
-          UNSPLASH_CACHE = data.map(function (d) { return d.urls.raw + '&w=1920&auto=format&fit=crop&q=85'; });
+          var newImgs = data.map(function (d) { return d.urls.raw + '&w=1920&auto=format&fit=crop&q=85'; });
+          UNSPLASH_CACHE = UNSPLASH_CACHE.concat(newImgs);
         }
       } catch (e) {
         console.error('Error Unsplash API:', e);
@@ -2347,7 +2354,8 @@
       wrap.className = 'canvas-wrap post-sq' + (STATE.style === 'light' ? ' light-mode' : '');
       var imgHtml = '';
       if (STATE.useImages) {
-        var url = getNextFitnessImg();
+        if (!d.imgUrl) d.imgUrl = getNextFitnessImg();
+        var url = d.imgUrl;
         imgHtml = '<div class="post-img" style="background-image:url(\'' + url + '\')"></div><div class="post-overlay"></div><button class="refresh-img" onclick="refreshElImg(this)">🔄</button>';
       }
       var logoSrc = STATE.style === 'light' ? (LOGO_DARK || './logo-dark.png.png') : (LOGO_LIGHT || './logo-light.png.png');
@@ -2359,7 +2367,8 @@
       wrap.className = 'canvas-wrap post-story' + (STATE.style === 'light' ? ' light-mode' : '');
       var imgHtml = '';
       if (STATE.useImages) {
-        var url = getNextFitnessImg();
+        if (!d.imgUrl) d.imgUrl = getNextFitnessImg();
+        var url = d.imgUrl;
         imgHtml = '<div class="post-img" style="background-image:url(\'' + url + '\')"></div><div class="post-overlay"></div><button class="refresh-img" onclick="refreshElImg(this)">🔄</button>';
       }
       var logoSrc = STATE.style === 'light' ? (LOGO_DARK || './logo-dark.png.png') : (LOGO_LIGHT || './logo-light.png.png');
@@ -2443,8 +2452,9 @@
 
       var imgHtml = '';
       if (STATE.useImages) {
-        var url = getNextFitnessImg();
-        imgHtml = '<div class="post-img" style="background-image:url(\'' + url + '\')"></div><div class="post-overlay"></div><button class="refresh-img" onclick="refreshElImg(this)">🔄</button>';
+        if (!s.imgUrl) s.imgUrl = getNextFitnessImg();
+        var url = s.imgUrl;
+        imgHtml = '<div class="post-img" style="background-image:url(\'' + url + '\')"></div><div class="post-overlay"></div><button class="refresh-img" onclick="refreshElImg(this, ' + idx + ')">🔄</button>';
       }
 
       // Si es light mode y el bgHex de la IA es oscuro, lo forzamos a light para coherencia
@@ -2543,12 +2553,30 @@
       });
     }
 
-    function refreshElImg(btn) {
+    function refreshElImg(btn, slideIdx) {
       var parent = btn.parentElement;
       var img = parent.querySelector('.post-img');
       if (!img) return;
-      var newUrl = getRandomFitnessImg();
-      img.style.backgroundImage = 'url("' + newUrl + '")';
+      
+      var finishRefresh = function(url) {
+        img.style.backgroundImage = 'url("' + url + '")';
+        btn.textContent = '🔄';
+        if (typeof slideIdx !== 'undefined' && SLIDES.list[slideIdx]) {
+          SLIDES.list[slideIdx].imgUrl = url;
+        } else if (CURRENT_DATA) {
+          CURRENT_DATA.imgUrl = url;
+        }
+      };
+
+      if (UNSPLASH_CACHE.length === 0 && UNSPLASH_KEY) {
+        btn.textContent = '⏳';
+        var searchTerm = CURRENT_DATA.image_search_term || '';
+        fetchUnsplashImages(searchTerm).then(function() {
+          finishRefresh(getNextFitnessImg());
+        });
+      } else {
+        finishRefresh(getNextFitnessImg());
+      }
     }
 
     function showToast(msg) {
