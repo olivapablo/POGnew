@@ -992,10 +992,9 @@
       background: #010B0E;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
       position: relative;
       overflow: hidden;
-      padding: 80px 24px 95px 24px;
+      padding: 50px 24px 40px 24px;
       box-sizing: border-box;
     }
 
@@ -1054,83 +1053,65 @@
       pointer-events: none;
       line-height: 1;
       z-index: 5;
+    }    .post-story .story-top {
+      position: relative;
+      z-index: 10;
+      text-align: center;
     }
 
-    .post-story .story-header {
+    .post-story .story-mid {
+      position: relative;
+      z-index: 10;
+      flex: 1;
+      width: 100%;
+    }
+
+    .post-story .story-bottom {
       position: relative;
       z-index: 10;
       display: flex;
-      justify-content: flex-start;
+      flex-direction: column;
       align-items: center;
-      width: 100%;
-      margin-bottom: 8px;
+      gap: 16px;
+    }
+
+    .post-story .story-footer-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(0, 0, 0, 0.5);
+      padding: 8px 16px;
+      border-radius: 30px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .light-mode .story-footer-brand {
+      background: rgba(255, 255, 255, 0.6);
+      border: 1px solid rgba(0, 0, 0, 0.05);
     }
 
     .post-story .story-logo {
-      height: 20px;
+      height: 18px;
       width: auto;
       object-fit: contain;
-      filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
-    }
-
-    .post-story .story-content {
-      position: relative;
-      z-index: 10;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      flex: 1;
-      margin-bottom: 10px;
-    }
-
-    .post-story .story-footer {
-      position: relative;
-      z-index: 10;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 10px;
-      width: 100%;
-    }
-
-    .post-story .s-label {
-      font-size: 8px;
-      letter-spacing: 3px;
-      color: var(--accent);
-      text-transform: uppercase;
-      font-weight: 700;
-      margin-bottom: 6px;
     }
 
     .post-story .s-q {
       font-family: 'Jockey One', sans-serif;
+      font-size: 36px;
       font-weight: 900;
-      line-height: .95;
+      line-height: 1.1;
       color: #fff;
       text-transform: uppercase;
-      margin-bottom: 8px;
-      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8), 0 4px 18px rgba(0, 0, 0, 0.4);
-    }
-
-    @media(min-width:860px) {
-      .post-story .s-q {
-        font-size: 32px
-      }
+      text-shadow: 0 4px 16px rgba(0, 0, 0, 0.8);
+      margin-bottom: 0;
     }
 
     @media(max-width:859px) {
       .post-story .s-q {
-        font-size: clamp(16px, 4.5vw, 26px)
+        font-size: clamp(22px, 7vw, 32px);
       }
-    }
-
-    .post-story .s-body {
-      font-size: 11px;
-      color: #E2E8F0;
-      line-height: 1.55;
-      margin-bottom: 8px;
-      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9), 0 2px 10px rgba(0, 0, 0, 0.5);
-      font-weight: 500;
     }
 
     .post-story .s-cta {
@@ -1140,22 +1121,29 @@
       background: var(--accent);
       color: #000;
       border-radius: 20px;
-      padding: 6px 12px;
-      font-size: 9px;
+      padding: 8px 16px;
+      font-size: 11px;
+      font-family: 'Montserrat', sans-serif;
       font-weight: 700;
-      transition: all 0.2s ease;
+      text-transform: uppercase;
       box-shadow: 0 4px 12px rgba(0, 208, 132, 0.2);
     }
 
     .post-story .s-handle {
-      font-size: 9px;
-      color: rgba(255, 255, 255, 0.65);
-      letter-spacing: 1.5px;
-      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
-      font-weight: 600;
-      margin-top: 45px;
-      text-align: center;
-      text-transform: uppercase;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 1px;
+    }
+
+    .post-story .s-body {
+      font-size: 11px;
+      color: #E2E8F0;
+      line-height: 1.55;
+      margin-bottom: 8px;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9), 0 2px 10px rgba(0, 0, 0, 0.5);
+      font-weight: 500;
     }
 
     /* STORY LIGHT MODE OVERRIDES */
@@ -1817,6 +1805,12 @@
           placeholder="Ej: El Ozempic no reemplaza el movimiento..."></textarea>
       </div>
 
+      <div class="section">
+        <span class="sec-label">Indicaciones opcionales (Libre)</span>
+        <textarea class="custom-ta" id="instructionsInput" rows="3"
+          placeholder="Ej: Mencionar mi experiencia entrenando con dolor de rodilla..."></textarea>
+      </div>
+
       <div class="gen-section">
         <button class="gen-btn" id="genBtn">⚡ GENERAR</button>
       </div>
@@ -2069,6 +2063,9 @@
           '- El caption debe terminar de forma obligatoria invitando a la comunidad a interactuar de forma genuina (comentar su experiencia personal, compartir con un colega, guardar o simplemente quedarse en la comunidad).\n\n';
       }
 
+      var extraInstructions = document.getElementById('instructionsInput') ? document.getElementById('instructionsInput').value.trim() : '';
+      var extraInstructionsText = extraInstructions ? ('INDICACIONES DEL USUARIO (PRIORIDAD ALTA):\n' + extraInstructions + '\n(Integrá estas indicaciones de forma natural y orgánica en el contenido, respetando siempre la identidad de la marca PG).\n\n') : '';
+
       var ctx = 'MARCA: PG (@prof.olivapablo)\n' +
         'Identidad: Profesor de Educación Física. Anti-humo fitness. Entrenamiento real para personas reales.\n' +
         'Tono de marca: serio, agresivo inteligente, directo, premium, ironía ocasional.\n' +
@@ -2077,6 +2074,8 @@
         'Pilar: ' + STATE.pilarLabel + '\n' +
         'Tema: "' + STATE.topic + '"\n' +
         'Tono: ' + TONE_DESC[STATE.tone] + '\n\n' +
+        
+        extraInstructionsText +
 
         pilarSpecificRules +
 
@@ -2110,7 +2109,10 @@
         return ctx + 'Generá un post cuadrado de Instagram para PG.\nResponde SOLO con JSON válido, sin backticks ni texto extra:\n{"pilar_tag":"nombre del pilar en mayúsculas 1-3 palabras","deco":"número o símbolo decorativo grande (ej: 80%, X, 0)","headline":"titular impactante en mayúsculas máx 7 palabras SIN hashtags","sub":"frase de apoyo 1-2 oraciones SIN hashtags","caption":"[ESCRIBÍ ACÁ EL CAPTION FINAL Y REAL. Aplicá las reglas de SEO, gancho potente, párrafos cortos y hashtags. Tiene que ser el texto listo para publicar acorde al tema]","image_search_term":"3-4 specific English keywords for Unsplash image search matching the topic of this post exactly, comma-separated (e.g. martial arts, boxing, kickboxing)"}';
       }
       if (STATE.type === 'story') {
-        return ctx + 'Generá una Story de Instagram para PG.\nResponde SOLO con JSON válido, sin backticks ni texto extra:\n{"label":"etiqueta corta en mayúsculas SIN hashtags","question":"afirmación impactante en mayúsculas máx 6 palabras SIN hashtags","body":"Explicación directa, rigurosa y de gran valor educativo redactada para ocupar de 3 a 5 líneas como máximo (2-3 oraciones contundentes). Tono PG.","cta":"llamada a acción corta","caption":"[ESCRIBÍ ACÁ EL CAPTION FINAL Y REAL. Aplicá las reglas de SEO, gancho potente, párrafos cortos y hashtags. Tiene que ser el texto listo para publicar acorde al tema]","image_search_term":"3-4 specific English keywords for Unsplash image search matching the topic of this story exactly, comma-separated (e.g. martial arts, boxing, kickboxing)"}';
+        return ctx + 'Generá una Story de Instagram para PG.\n' +
+          'DISEÑO MINIMALISTA: El texto debe ser brevísimo. Menos es más. El protagonista será un sticker interactivo que el usuario pondrá después en el centro.\n' +
+          'Responde SOLO con JSON válido, sin backticks ni texto extra:\n' +
+          '{"question":"Afirmación impactante o pregunta corta en mayúsculas máx 6 palabras SIN hashtags. Funciona como gancho superior.","cta":"Llamada a la acción brevísima de una sola línea (ej: ¡Votá abajo!, ¿Qué opinás?)","caption":"[ESCRIBÍ ACÁ EL CAPTION FINAL Y REAL. Aplicá las reglas de SEO, gancho potente, párrafos cortos y hashtags. Tiene que ser el texto listo para publicar acorde al tema]","image_search_term":"3-4 specific English keywords for Unsplash image search matching the topic of this story exactly, comma-separated (e.g. martial arts, boxing, kickboxing)"}';
       }
       if (STATE.type === 'carousel') {
         return ctx + 'Generá un carrusel de EXACTAMENTE 6 slides para Instagram de PG.\n' +
@@ -2376,18 +2378,22 @@
         imgHtml = '<div class="post-img" style="background-image:url(\'' + url + '\')"></div><div class="post-overlay"></div><button class="refresh-img" onclick="refreshElImg(this)">🔄</button>';
       }
       var logoSrc = STATE.style === 'light' ? (LOGO_DARK || './logo-dark.png.png') : (LOGO_LIGHT || './logo-light.png.png');
-      var logoHtml = '<div class="story-header"><img class="story-logo" src="' + logoSrc + '" onerror="this.style.display=\'none\'" alt="Logo"></div>';
-
-      wrap.innerHTML = imgHtml + '<div class="blob1"></div><div class="blob2"></div><div class="deco-q">?</div>' +
-        logoHtml +
-        '<div class="story-content">' +
-        '<div class="s-label">' + esc(d.label || '') + '</div>' +
-        '<div class="s-q">' + esc(d.question || '') + '</div>' +
-        '<p class="s-body">' + esc(d.body || '') + '</p>' +
-        '</div>' +
-        '<div class="story-footer">' +
-        '<div class="s-handle">@prof.olivapablo</div>' +
+      
+      var topZone = '<div class="story-top">' +
+        '<div class="s-q">' + esc(d.question || d.headline || '') + '</div>' +
         '</div>';
+
+      var midZone = '<div class="story-mid"></div>';
+
+      var bottomZone = '<div class="story-bottom">' +
+        (d.cta ? '<div class="s-cta">' + esc(d.cta) + '</div>' : '') +
+        '<div class="story-footer-brand">' +
+        '<img class="story-logo" src="' + logoSrc + '" onerror="this.style.display=\'none\'" alt="Logo">' +
+        '<div class="s-handle">@prof.olivapablo · POG</div>' +
+        '</div></div>';
+
+      wrap.innerHTML = imgHtml + '<div class="blob1"></div><div class="blob2"></div>' +
+        topZone + midZone + bottomZone;
     }
 
     function renderCarousel(d, wrap, stage) {
