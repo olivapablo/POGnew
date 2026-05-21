@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pog-cache-v2';
+const CACHE_NAME = 'pog-cache-v4.1.0';
 const ASSETS = [
   './',
   './index.html',
