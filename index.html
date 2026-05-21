@@ -1035,34 +1035,19 @@
       pointer-events: none;
     }
 
-    .post-story .deco-q {
-      position: absolute;
-      font-family: 'Jockey One', sans-serif;
-      font-size: 180px;
-      font-weight: 900;
-      color: rgba(255, 255, 255, .025);
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      margin: auto;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      user-select: none;
-      pointer-events: none;
-      line-height: 1;
-      z-index: 5;
-    }
+    
 
     .post-story .story-header {
-      position: relative;
+      position: absolute;
+      top: 0;
+      left: 0;
       z-index: 10;
       display: flex;
       justify-content: flex-start;
       align-items: center;
       width: 100%;
-      margin-bottom: 12px;
+      padding: 8px;
+      margin-bottom: 0;
     }
 
     .post-story .story-logo {
@@ -1113,7 +1098,7 @@
       width: 50px;
       height: 4px;
       background: var(--accent);
-      margin: 16px auto 0 auto;
+      margin: 8px auto 0 auto; /* moved up */
       border-radius: 2px;
     }
 
@@ -1138,12 +1123,7 @@
     }
 
     .post-story .s-body {
-      font-size: 11px;
-      color: #E2E8F0;
-      line-height: 1.55;
-      margin-bottom: 8px;
-      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9), 0 2px 10px rgba(0, 0, 0, 0.5);
-      font-weight: 500;
+      display: none; /* hidden blue box */
     }
 
     /* STORY LIGHT MODE OVERRIDES */
@@ -2080,10 +2060,12 @@
         
         extraInstructionsText +
 
-        'REGLA DE ELABORACIÓN CREATIVA (NO COPIAR LITERALMENTE):\n' +
-        '- NUNCA copies de forma textual o literal el Tema o las Indicaciones del Usuario en los títulos, titulares (headline), preguntas (question) o textos visibles.\n' +
-        '- Si el usuario te indica un detalle (ej: "la casa es de color azul"), no titules "LA CASA AZUL". En su lugar, interpretá el concepto, usalo como analogía o argumento, y creá un título/pregunta con gancho e intriga real de POG (ej: "¿TU ENTRENAMIENTO TIENE CIMIENTOS?").\n' +
-        '- La información y los detalles provistos en las indicaciones deben estar completamente diluidos e integrados en el cuerpo del texto de manera fluida, no expuestos de manera obvia o perezosa.\n\n' +
+        'REGLA DE PRIORIDAD ABSOLUTA DE LAS INDICACIONES DEL USUARIO:\n' +
+        '- Si el usuario escribe indicaciones opcionales específicas (ej: "El Titulo será Tip del día", "El mini Texto: Un estudio de Cambridge...", "Mencioná que la grasa es energía"), estas órdenes tienen PRIORIDAD ABSOLUTA sobre cualquier otra regla de tono, estructura o creatividad. Debés acatarlas de forma ESTRICTA y LITERAL.\n' +
+        '- Si el usuario especifica un título, frase o dato puntual, ponelo EXACTAMENTE como lo pide en el campo correspondiente del JSON.\n\n' +
+
+        'REGLA DE ELABORACIÓN CREATIVA DE RESPALDO:\n' +
+        '- Si el usuario NO dio indicaciones específicas de redacción para un campo, no copies el Tema de forma literal y perezosa (ej: si el tema es "Grasa", no titules "LA GRASA"). En ese caso, interpretá el concepto y creá un gancho o título creativo con estilo POG.\n\n' +
 
         pilarSpecificRules +
 
@@ -2114,13 +2096,14 @@
         'REGLA SOBRE EL CAPTION: En el campo "caption" del JSON, OBLIGATORIAMENTE tenés que generar y escribir el texto final del posteo acorde al tema. ¡NO COPIES las instrucciones en el JSON, generá el texto real para que el usuario lo pueda publicar!\n\n';
 
       if (STATE.type === 'post') {
-        return ctx + 'Generá un post cuadrado de Instagram para PG.\nResponde SOLO con JSON válido, sin backticks ni texto extra:\n{"pilar_tag":"nombre del pilar en mayúsculas 1-3 palabras","deco":"número o símbolo decorativo grande (ej: 80%, X, 0)","headline":"titular impactante en mayúsculas máx 7 palabras SIN hashtags (creativo, NO copia literal del tema o indicaciones)","sub":"frase de apoyo 1-2 oraciones SIN hashtags","caption":"[ESCRIBÍ ACÁ EL CAPTION FINAL Y REAL. Aplicá las reglas de SEO, gancho potente, párrafos cortos y hashtags. Tiene que ser el texto listo para publicar acorde al tema]","image_search_term":"3-4 specific English keywords for Unsplash image search matching the topic of this post exactly, comma-separated (e.g. martial arts, boxing, kickboxing)"}';
+        return ctx + 'Generá un post cuadrado de Instagram para PG.\nResponde SOLO con JSON válido, sin backticks ni texto extra:\n{"pilar_tag":"nombre del pilar en mayúsculas 1-3 palabras","deco":"número o símbolo decorativo grande (ej: 80%, X, 0)","headline":"titular impactante en mayúsculas máx 7 palabras. Si el usuario indica un título específico en sus indicaciones opcionales, usá exactamente ese. Si no, sé creativo y no copies el tema literal.","sub":"frase de apoyo 1-2 oraciones. Si el usuario te pide mencionar algo específico o poner un texto de apoyo, ponelo acá.","caption":"[ESCRIBÍ ACÁ EL CAPTION FINAL Y REAL. Integrá las indicaciones del usuario si las hay. Aplicá las reglas de SEO, gancho potente, párrafos cortos y hashtags. Listo para publicar]","image_search_term":"3-4 specific English keywords for Unsplash image search matching the topic of this post exactly, comma-separated (e.g. martial arts, boxing, kickboxing)"}';
       }
       if (STATE.type === 'story') {
         return ctx + 'Generá una Story de Instagram para PG.\n' +
           'DISEÑO MINIMALISTA: El texto debe ser brevísimo. Menos es más. El protagonista será un sticker interactivo que el usuario pondrá después en el centro.\n' +
           'Responde SOLO con JSON válido, sin backticks ni texto extra:\n' +
-          '{"question":"Afirmación impactante o pregunta corta en mayúsculas máx 6 palabras SIN hashtags. Funciona como gancho superior. Debe ser un gancho creativo, NO una copia literal de las indicaciones o tema.","caption":"[ESCRIBÍ ACÁ EL CAPTION FINAL Y REAL. Aplicá las reglas de SEO, gancho potente, párrafos cortos y hashtags. Tiene que ser el texto listo para publicar acorde al tema]","image_search_term":"3-4 specific English keywords for Unsplash image search matching the topic of this story exactly, comma-separated (e.g. martial arts, boxing, kickboxing)"}';
+          '{"question":"Afirmación impactante o pregunta corta en mayúsculas máx 6 palabras. Si el usuario indica un título específico en sus indicaciones (ej: \'El Titulo será Tip del día\'), usá EXACTAMENTE ese título. Si no, sé creativo.","body":"Texto de apoyo brevísimo (máx 2 líneas/oraciones) para colocar debajo del título en la historia. Si el usuario especifica un texto para el cuerpo o si te pide mencionar un dato concreto en la historia (ej: \'El mini Texto: Un estudio de la Universidad de...\'), ponelo EXACTAMENTE acá. Si no se solicita ni hay indicación para el cuerpo, dejalo vacío (llave vacía \"\").","caption":"[ESCRIBÍ ACÁ EL CAPTION FINAL Y REAL. Integrá las indicaciones del usuario si las hay. Aplicá las reglas de SEO, gancho potente, párrafos cortos y hashtags. Listo para publicar]","image_search_term":"3-4 specific English keywords for Unsplash image search matching the topic of this story exactly, comma-separated (e.g. martial arts, boxing, kickboxing)"}';
+      }
       }
       if (STATE.type === 'carousel') {
         return ctx + 'Generá un carrusel de EXACTAMENTE 6 slides para Instagram de PG.\n' +
@@ -2391,9 +2374,13 @@
         imgHtml = '<div class="post-img" style="background-image:url(\'' + url + '\')"></div><div class="post-overlay"></div><button class="refresh-img" onclick="refreshElImg(this)">🔄</button>';
       }
       var logoSrc = STATE.style === 'light' ? (LOGO_DARK || './logo-dark.png.png') : (LOGO_LIGHT || './logo-light.png.png');
-      
       var logoHtml = '<div class="story-header"><img class="story-logo" src="' + logoSrc + '" onerror="this.style.display=\'none\'" alt="Logo"></div>';
-      var contentHtml = '<div class="story-content"><div class="s-q">' + esc(d.question || d.headline || '') + '</div></div>';
+      var contentHtml = '<div class="story-content"><div class="s-q">' + esc(d.question || d.headline || '') + '</div>';
+      // Insert optional body below the question if provided
+      if (d.body) {
+        contentHtml += '<div class="s-body">' + esc(d.body) + '</div>';
+      }
+      contentHtml += '</div>';
       var midSpaceHtml = '<div class="story-mid-space"></div>';
       var footerHtml = '<div class="story-footer"><div class="s-handle">@prof.olivapablo</div></div>';
 
