@@ -1011,7 +1011,7 @@
         max-width: 240px;
         height: calc((100vw - 32px)*1.03);
         max-height: 430px;
-        padding: 70px 18px 85px 18px;
+        padding: 40px 18px 45px 18px;
       }
     }
 
@@ -1053,88 +1053,74 @@
       pointer-events: none;
       line-height: 1;
       z-index: 5;
-    }    .post-story .story-top {
-      position: relative;
-      z-index: 10;
-      text-align: center;
     }
 
-    .post-story .story-mid {
+    .post-story .story-header {
       position: relative;
       z-index: 10;
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      width: 100%;
+      margin-bottom: 12px;
+    }
+
+    .post-story .story-logo {
+      height: 20px;
+      width: auto;
+      object-fit: contain;
+      filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
+    }
+
+    .post-story .story-content {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+    }
+
+    .post-story .story-mid-space {
       flex: 1;
       width: 100%;
     }
 
-    .post-story .story-bottom {
+    .post-story .story-footer {
       position: relative;
       z-index: 10;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 16px;
-    }
-
-    .post-story .story-footer-brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      background: rgba(0, 0, 0, 0.5);
-      padding: 8px 16px;
-      border-radius: 30px;
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .light-mode .story-footer-brand {
-      background: rgba(255, 255, 255, 0.6);
-      border: 1px solid rgba(0, 0, 0, 0.05);
-    }
-
-    .post-story .story-logo {
-      height: 18px;
-      width: auto;
-      object-fit: contain;
+      width: 100%;
     }
 
     .post-story .s-q {
       font-family: 'Jockey One', sans-serif;
-      font-size: 36px;
+      font-size: 32px;
       font-weight: 900;
-      line-height: 1.1;
+      line-height: .95;
       color: #fff;
       text-transform: uppercase;
-      text-shadow: 0 4px 16px rgba(0, 0, 0, 0.8);
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8), 0 4px 18px rgba(0, 0, 0, 0.4);
+      margin-top: 5px;
       margin-bottom: 0;
+      text-align: center;
     }
 
     @media(max-width:859px) {
       .post-story .s-q {
-        font-size: clamp(22px, 7vw, 32px);
+        font-size: clamp(16px, 4.5vw, 26px);
       }
     }
 
-    .post-story .s-cta {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: var(--accent);
-      color: #000;
-      border-radius: 20px;
-      padding: 8px 16px;
-      font-size: 11px;
-      font-family: 'Montserrat', sans-serif;
-      font-weight: 700;
-      text-transform: uppercase;
-      box-shadow: 0 4px 12px rgba(0, 208, 132, 0.2);
-    }
-
     .post-story .s-handle {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 11px;
-      font-weight: 700;
-      color: #fff;
-      letter-spacing: 1px;
+      font-size: 10px;
+      color: rgba(255, 255, 255, 0.7);
+      letter-spacing: 1.5px;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+      font-weight: 600;
+      text-align: center;
+      text-transform: uppercase;
     }
 
     .post-story .s-body {
@@ -2379,21 +2365,13 @@
       }
       var logoSrc = STATE.style === 'light' ? (LOGO_DARK || './logo-dark.png.png') : (LOGO_LIGHT || './logo-light.png.png');
       
-      var topZone = '<div class="story-top">' +
-        '<div class="s-q">' + esc(d.question || d.headline || '') + '</div>' +
-        '</div>';
-
-      var midZone = '<div class="story-mid"></div>';
-
-      var bottomZone = '<div class="story-bottom">' +
-        (d.cta ? '<div class="s-cta">' + esc(d.cta) + '</div>' : '') +
-        '<div class="story-footer-brand">' +
-        '<img class="story-logo" src="' + logoSrc + '" onerror="this.style.display=\'none\'" alt="Logo">' +
-        '<div class="s-handle">@prof.olivapablo · POG</div>' +
-        '</div></div>';
+      var logoHtml = '<div class="story-header"><img class="story-logo" src="' + logoSrc + '" onerror="this.style.display=\'none\'" alt="Logo"></div>';
+      var contentHtml = '<div class="story-content"><div class="s-q">' + esc(d.question || d.headline || '') + '</div></div>';
+      var midSpaceHtml = '<div class="story-mid-space"></div>';
+      var footerHtml = '<div class="story-footer"><div class="s-handle">@prof.olivapablo</div></div>';
 
       wrap.innerHTML = imgHtml + '<div class="blob1"></div><div class="blob2"></div>' +
-        topZone + midZone + bottomZone;
+        logoHtml + contentHtml + midSpaceHtml + footerHtml;
     }
 
     function renderCarousel(d, wrap, stage) {
