@@ -1183,7 +1183,16 @@
       display: none;
     }
 
-    /* STORY INFO MODE: body visible */
+    /* STORY INFO MODE: body visible, content fills entire story */
+    .post-story.story-info .story-content {
+      flex: 1;
+      justify-content: center;
+    }
+
+    .post-story.story-info .story-mid-space {
+      display: none;
+    }
+
     .post-story.story-info .s-body {
       display: block;
       font-family: 'Montserrat', sans-serif;
