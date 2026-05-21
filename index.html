@@ -987,6 +987,62 @@
       color: #008055;
     }
 
+    /* STORY MODE SELECTOR */
+    #storyModeWrap {
+      display: none;
+    }
+
+    #storyModeWrap.visible {
+      display: block;
+    }
+
+    .story-mode-tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+    }
+
+    .smode-btn {
+      background: #161616;
+      border: 1.5px solid #222;
+      color: #888;
+      border-radius: 8px;
+      padding: 10px 8px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 500;
+      transition: all .15s;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    .smode-btn .ico {
+      font-size: 18px;
+    }
+
+    .smode-btn .smode-desc {
+      font-size: 9px;
+      color: #666;
+      font-weight: 400;
+      margin-top: 2px;
+    }
+
+    .smode-btn.on {
+      background: rgba(255, 45, 45, 0.08);
+      border-color: #FF2D2D;
+      color: #FF2D2D;
+      font-weight: 700;
+    }
+
+    .smode-btn.on .smode-desc {
+      color: rgba(255, 45, 45, 0.6);
+    }
+
     /* STORY */
     .post-story {
       background: #010B0E;
@@ -1098,7 +1154,7 @@
       width: 50px;
       height: 4px;
       background: var(--accent);
-      margin: 8px auto 0 auto; /* moved up */
+      margin: 8px auto 0 auto;
       border-radius: 2px;
     }
 
@@ -1122,8 +1178,29 @@
       text-transform: uppercase;
     }
 
+    /* STORY STICKER MODE: body hidden */
     .post-story .s-body {
-      display: none; /* hidden blue box */
+      display: none;
+    }
+
+    /* STORY INFO MODE: body visible */
+    .post-story.story-info .s-body {
+      display: block;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 13px;
+      color: #cde0d6;
+      line-height: 1.55;
+      margin-top: 12px;
+      text-align: center;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8), 0 2px 10px rgba(0, 0, 0, 0.5);
+      font-weight: 500;
+      padding: 0 4px;
+    }
+
+    @media(max-width:859px) {
+      .post-story.story-info .s-body {
+        font-size: 11px;
+      }
     }
 
     /* STORY LIGHT MODE OVERRIDES */
@@ -1703,6 +1780,20 @@
         </div>
       </div>
 
+      <div class="section" id="storyModeWrap">
+        <span class="sec-label">Modo de Story</span>
+        <div class="story-mode-tabs" id="storyModeTabs">
+          <button class="smode-btn on" data-smode="sticker">
+            <span class="ico">🎯</span>Sticker
+            <span class="smode-desc">Solo título + stickers</span>
+          </button>
+          <button class="smode-btn" data-smode="info">
+            <span class="ico">📝</span>Informativa
+            <span class="smode-desc">Título + texto completo</span>
+          </button>
+        </div>
+      </div>
+
       <div class="section">
         <span class="sec-label">Pilar de contenido</span>
         <div class="pilar-list" id="pilarList">
@@ -1818,7 +1909,7 @@
     var GEMINI_KEY = STATIC_GEMINI_KEY || '';
     var UNSPLASH_KEY = STATIC_UNSPLASH_KEY || '';
     var UNSPLASH_CACHE = [];
-    var STATE = { type: 'post', pilar: 'antihumo', pilarLabel: 'Anti-Humo Fitness', topic: '', tone: 'polemico', style: 'dark', useImages: true };
+    var STATE = { type: 'post', storyMode: 'sticker', pilar: 'antihumo', pilarLabel: 'Anti-Humo Fitness', topic: '', tone: 'polemico', style: 'dark', useImages: true };
     var SLIDES = { list: [], current: 0 };
     var LOGO_LIGHT = localStorage.getItem('pg_logo_light') || '';
     var LOGO_DARK = localStorage.getItem('pg_logo_dark') || '';
@@ -1906,6 +1997,22 @@
         document.querySelectorAll('.ttab').forEach(function (b) { b.classList.remove('on') });
         btn.classList.add('on');
         STATE.type = btn.dataset.type;
+        // Show/hide story mode selector
+        var smWrap = document.getElementById('storyModeWrap');
+        if (STATE.type === 'story') {
+          smWrap.classList.add('visible');
+        } else {
+          smWrap.classList.remove('visible');
+        }
+      });
+
+      // STORY MODE TABS
+      document.getElementById('storyModeTabs').addEventListener('click', function (e) {
+        var btn = e.target.closest('.smode-btn');
+        if (!btn) return;
+        document.querySelectorAll('.smode-btn').forEach(function (b) { b.classList.remove('on') });
+        btn.classList.add('on');
+        STATE.storyMode = btn.dataset.smode;
       });
 
       // PILARES
@@ -2098,16 +2205,25 @@
       if (STATE.type === 'post') {
         return ctx + 'Generá un post cuadrado de Instagram para PG.\nResponde SOLO con JSON válido, sin backticks ni texto extra:\n{"pilar_tag":"nombre del pilar en mayúsculas 1-3 palabras","deco":"número o símbolo decorativo grande (ej: 80%, X, 0)","headline":"titular impactante en mayúsculas máx 7 palabras. Si el usuario indica un título específico en sus indicaciones opcionales, usá exactamente ese. Si no, sé creativo y no copies el tema literal.","sub":"frase de apoyo 1-2 oraciones. Si el usuario te pide mencionar algo específico o poner un texto de apoyo, ponelo acá.","caption":"[ESCRIBÍ ACÁ EL CAPTION FINAL Y REAL. Integrá las indicaciones del usuario si las hay. Aplicá las reglas de SEO, gancho potente, párrafos cortos y hashtags. Listo para publicar]","image_search_term":"3-4 specific English keywords for Unsplash image search matching the topic of this post exactly, comma-separated (e.g. martial arts, boxing, kickboxing)"}';
       }
-      if (STATE.type === 'story') {
-        return ctx + 'Generá una Story de Instagram para PG.\n' +
-          'DISEÑO MINIMALISTA: El texto debe ser brevísimo. Menos es más. El protagonista será un sticker interactivo que el usuario pondrá después en el centro.\n\n' +
-          'REGLA CRÍTICA PARA STORIES — USO OBLIGATORIO DEL TEMA E INDICACIONES DEL USUARIO:\n' +
-          '- Si el usuario escribió un Tema arriba (campo "Tema"), la story DEBE ser sobre ese tema específico y el campo "question" DEBE reflejar ese tema de forma directa y fiel. No lo ignores ni lo cambies por otra cosa.\n' +
-          '- Si el usuario escribió texto específico en las Indicaciones opcionales (ej: "El Titulo será Tip del día", "El mini Texto: Un estudio de Cambridge..."), usá EXACTAMENTE ese texto en el campo correspondiente del JSON (question o body). Esto tiene PRIORIDAD ABSOLUTA.\n' +
-          '- Si el usuario escribe un texto largo o una frase completa como Tema, adaptalo como título corto para "question" pero SIEMPRE manteniendo la idea central intacta. El "body" puede contener el detalle o contexto adicional.\n' +
-          '- NUNCA ignores lo que el usuario escribió. Si puso un tema o una indicación, tu story DEBE girar en torno a eso.\n\n' +
+      if (STATE.type === 'story' && STATE.storyMode === 'sticker') {
+        return ctx + 'Generá una Story de Instagram para PG en MODO STICKER.\n' +
+          'DISEÑO MINIMALISTA: El texto debe ser brevísimo. Menos es más. El protagonista será un sticker interactivo que el usuario pondrá después en el centro.\n' +
+          'Solo necesitás generar un TÍTULO potente (question). El body debe quedar VACÍO porque el usuario pondrá stickers de interacción.\n\n' +
+          'REGLA: Si el usuario escribió un Tema, el título DEBE reflejar ese tema fielmente.\n' +
+          'REGLA: Si el usuario escribió indicaciones específicas para el título, usá EXACTAMENTE ese texto.\n\n' +
           'Responde SOLO con JSON válido, sin backticks ni texto extra:\n' +
-          '{"question":"Afirmación impactante o pregunta corta en mayúsculas máx 6 palabras basada en el Tema del usuario. Si el usuario indica un título exacto en sus indicaciones, usá EXACTAMENTE ese título. Si no, creá uno basado fielmente en el Tema proporcionado.","body":"Texto de apoyo brevísimo (máx 2 líneas/oraciones) para colocar debajo del título. Si el usuario especifica texto para el cuerpo en sus indicaciones, ponelo EXACTAMENTE acá. Si el usuario escribió un Tema largo o con detalles, usá el body para incluir ese contexto. Si no hay indicación específica para el cuerpo, dejalo vacío (llave vacía \"\").","caption":"[ESCRIBÍ ACÁ EL CAPTION FINAL Y REAL sobre el Tema del usuario. Integrá las indicaciones del usuario si las hay. Aplicá las reglas de SEO, gancho potente, párrafos cortos y hashtags. Listo para publicar]","image_search_term":"3-4 specific English keywords for Unsplash image search matching the topic of this story exactly, comma-separated (e.g. martial arts, boxing, kickboxing)"}';
+          '{"question":"Afirmación impactante o pregunta corta en mayúsculas máx 6 palabras. Si el usuario proporcionó un Tema, basá el título en ese tema. Si indicó un título exacto, usá EXACTAMENTE ese.","body":"","caption":"[ESCRIBÍ ACÁ EL CAPTION FINAL Y REAL. Aplicá las reglas de SEO, gancho potente, párrafos cortos y hashtags. Listo para publicar]","image_search_term":"3-4 specific English keywords for Unsplash image search matching the topic of this story exactly, comma-separated (e.g. martial arts, boxing, kickboxing)"}';
+      }
+      if (STATE.type === 'story' && STATE.storyMode === 'info') {
+        return ctx + 'Generá una Story INFORMATIVA de Instagram para PG.\n' +
+          'Esta story es de tipo INFORMATIVA: debe tener un TÍTULO potente y un CUERPO DE TEXTO con contenido de valor educativo real.\n\n' +
+          'REGLA CRÍTICA — USO OBLIGATORIO DEL TEMA E INDICACIONES:\n' +
+          '- Si el usuario escribió un Tema, la story DEBE ser sobre ese tema y el título DEBE reflejarlo directamente.\n' +
+          '- Si el usuario escribió indicaciones específicas (ej: "El Titulo será Tip del día", "El texto: La creatina es..."), usá EXACTAMENTE ese texto en el campo correspondiente. PRIORIDAD ABSOLUTA.\n' +
+          '- El campo "body" DEBE tener contenido informativo de valor (3-5 líneas). NUNCA dejarlo vacío en modo informativa.\n' +
+          '- Si el usuario proporcionó texto específico o un dato concreto, integralo fielmente en el body.\n\n' +
+          'Responde SOLO con JSON válido, sin backticks ni texto extra:\n' +
+          '{"question":"Título impactante en mayúsculas máx 6 palabras basado en el Tema del usuario. Si el usuario indicó un título exacto, usá EXACTAMENTE ese.","body":"Texto informativo de valor educativo (3-5 líneas). Redactá contenido útil, directo y con estilo PG sobre el tema. Si el usuario especificó texto en sus indicaciones, usá EXACTAMENTE ese texto.","caption":"[ESCRIBÍ ACÁ EL CAPTION FINAL Y REAL. Aplicá las reglas de SEO, gancho potente, párrafos cortos y hashtags. Listo para publicar]","image_search_term":"3-4 specific English keywords for Unsplash image search matching the topic of this story exactly, comma-separated (e.g. martial arts, boxing, kickboxing)"}';
       }
       if (STATE.type === 'carousel') {
         return ctx + 'Generá un carrusel de EXACTAMENTE 6 slides para Instagram de PG.\n' +
@@ -2370,7 +2486,8 @@
     }
 
     function renderStory(d, wrap) {
-      wrap.className = 'canvas-wrap post-story' + (STATE.style === 'light' ? ' light-mode' : '');
+      var isInfo = STATE.storyMode === 'info';
+      wrap.className = 'canvas-wrap post-story' + (isInfo ? ' story-info' : '') + (STATE.style === 'light' ? ' light-mode' : '');
       var imgHtml = '';
       if (STATE.useImages) {
         if (!d.imgUrl) d.imgUrl = getNextFitnessImg();
@@ -2380,7 +2497,6 @@
       var logoSrc = STATE.style === 'light' ? (LOGO_DARK || './logo-dark.png.png') : (LOGO_LIGHT || './logo-light.png.png');
       var logoHtml = '<div class="story-header"><img class="story-logo" src="' + logoSrc + '" onerror="this.style.display=\'none\'" alt="Logo"></div>';
       var contentHtml = '<div class="story-content"><div class="s-q">' + esc(d.question || d.headline || '') + '</div>';
-      // Insert optional body below the question if provided
       if (d.body) {
         contentHtml += '<div class="s-body">' + esc(d.body) + '</div>';
       }
