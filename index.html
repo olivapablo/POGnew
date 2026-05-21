@@ -2049,6 +2049,9 @@
           '- El caption debe terminar de forma obligatoria invitando a la comunidad a interactuar de forma genuina (comentar su experiencia personal, compartir con un colega, guardar o simplemente quedarse en la comunidad).\n\n';
       }
 
+      var currentTopic = document.getElementById('customInput') ? document.getElementById('customInput').value.trim() : '';
+      if (!currentTopic) currentTopic = STATE.topic || '';
+
       var extraInstructions = document.getElementById('instructionsInput') ? document.getElementById('instructionsInput').value.trim() : '';
       var extraInstructionsText = extraInstructions ? ('INDICACIONES DEL USUARIO (PRIORIDAD ALTA):\n' + extraInstructions + '\n(Integrá estas indicaciones de forma natural y orgánica en el contenido, respetando siempre la identidad de la marca PG).\n\n') : '';
 
@@ -2058,10 +2061,15 @@
         'NUNCA: influencer superficial, vendedor de suplementos, coach motivacional vacío, frases cliché fitness.\n' +
         'SIEMPRE: simplificar ciencia, generar identificación, hooks fuertes, lenguaje humano y útil.\n' +
         'Pilar: ' + STATE.pilarLabel + '\n' +
-        'Tema: "' + STATE.topic + '"\n' +
+        (currentTopic ? 'Tema: "' + currentTopic + '"\n' : '') +
         'Tono: ' + TONE_DESC[STATE.tone] + '\n\n' +
         
         extraInstructionsText +
+
+        'REGLA DE ELABORACIÓN CREATIVA (NO COPIAR LITERALMENTE):\n' +
+        '- NUNCA copies de forma textual o literal el Tema o las Indicaciones del Usuario en los títulos, titulares (headline), preguntas (question) o textos visibles.\n' +
+        '- Si el usuario te indica un detalle (ej: "la casa es de color azul"), no titules "LA CASA AZUL". En su lugar, interpretá el concepto, usalo como analogía o argumento, y creá un título/pregunta con gancho e intriga real de POG (ej: "¿TU ENTRENAMIENTO TIENE CIMIENTOS?").\n' +
+        '- La información y los detalles provistos en las indicaciones deben estar completamente diluidos e integrados en el cuerpo del texto de manera fluida, no expuestos de manera obvia o perezosa.\n\n' +
 
         pilarSpecificRules +
 
@@ -2092,13 +2100,13 @@
         'REGLA SOBRE EL CAPTION: En el campo "caption" del JSON, OBLIGATORIAMENTE tenés que generar y escribir el texto final del posteo acorde al tema. ¡NO COPIES las instrucciones en el JSON, generá el texto real para que el usuario lo pueda publicar!\n\n';
 
       if (STATE.type === 'post') {
-        return ctx + 'Generá un post cuadrado de Instagram para PG.\nResponde SOLO con JSON válido, sin backticks ni texto extra:\n{"pilar_tag":"nombre del pilar en mayúsculas 1-3 palabras","deco":"número o símbolo decorativo grande (ej: 80%, X, 0)","headline":"titular impactante en mayúsculas máx 7 palabras SIN hashtags","sub":"frase de apoyo 1-2 oraciones SIN hashtags","caption":"[ESCRIBÍ ACÁ EL CAPTION FINAL Y REAL. Aplicá las reglas de SEO, gancho potente, párrafos cortos y hashtags. Tiene que ser el texto listo para publicar acorde al tema]","image_search_term":"3-4 specific English keywords for Unsplash image search matching the topic of this post exactly, comma-separated (e.g. martial arts, boxing, kickboxing)"}';
+        return ctx + 'Generá un post cuadrado de Instagram para PG.\nResponde SOLO con JSON válido, sin backticks ni texto extra:\n{"pilar_tag":"nombre del pilar en mayúsculas 1-3 palabras","deco":"número o símbolo decorativo grande (ej: 80%, X, 0)","headline":"titular impactante en mayúsculas máx 7 palabras SIN hashtags (creativo, NO copia literal del tema o indicaciones)","sub":"frase de apoyo 1-2 oraciones SIN hashtags","caption":"[ESCRIBÍ ACÁ EL CAPTION FINAL Y REAL. Aplicá las reglas de SEO, gancho potente, párrafos cortos y hashtags. Tiene que ser el texto listo para publicar acorde al tema]","image_search_term":"3-4 specific English keywords for Unsplash image search matching the topic of this post exactly, comma-separated (e.g. martial arts, boxing, kickboxing)"}';
       }
       if (STATE.type === 'story') {
         return ctx + 'Generá una Story de Instagram para PG.\n' +
           'DISEÑO MINIMALISTA: El texto debe ser brevísimo. Menos es más. El protagonista será un sticker interactivo que el usuario pondrá después en el centro.\n' +
           'Responde SOLO con JSON válido, sin backticks ni texto extra:\n' +
-          '{"question":"Afirmación impactante o pregunta corta en mayúsculas máx 6 palabras SIN hashtags. Funciona como gancho superior.","cta":"Llamada a la acción brevísima de una sola línea (ej: ¡Votá abajo!, ¿Qué opinás?)","caption":"[ESCRIBÍ ACÁ EL CAPTION FINAL Y REAL. Aplicá las reglas de SEO, gancho potente, párrafos cortos y hashtags. Tiene que ser el texto listo para publicar acorde al tema]","image_search_term":"3-4 specific English keywords for Unsplash image search matching the topic of this story exactly, comma-separated (e.g. martial arts, boxing, kickboxing)"}';
+          '{"question":"Afirmación impactante o pregunta corta en mayúsculas máx 6 palabras SIN hashtags. Funciona como gancho superior. Debe ser un gancho creativo, NO una copia literal de las indicaciones o tema.","caption":"[ESCRIBÍ ACÁ EL CAPTION FINAL Y REAL. Aplicá las reglas de SEO, gancho potente, párrafos cortos y hashtags. Tiene que ser el texto listo para publicar acorde al tema]","image_search_term":"3-4 specific English keywords for Unsplash image search matching the topic of this story exactly, comma-separated (e.g. martial arts, boxing, kickboxing)"}';
       }
       if (STATE.type === 'carousel') {
         return ctx + 'Generá un carrusel de EXACTAMENTE 6 slides para Instagram de PG.\n' +
@@ -2166,9 +2174,14 @@
 
     async function generate() {
       var customVal = document.getElementById('customInput').value.trim();
-      var topic = customVal || STATE.topic;
-      if (!topic) { showToast('Elegí o escribí un tema primero.'); return; }
-      STATE.topic = topic;
+      var extraVal = document.getElementById('instructionsInput') ? document.getElementById('instructionsInput').value.trim() : '';
+      
+      if (!customVal && !STATE.topic && !extraVal) {
+        showToast('Elegí un tema, escribí uno o agregá indicaciones opcionales.');
+        return;
+      }
+      
+      STATE.topic = customVal || STATE.topic || '';
       if (!GEMINI_KEY) { document.getElementById('apiScreen').classList.remove('hide'); return; }
 
       var btn = document.getElementById('genBtn');
