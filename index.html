@@ -2759,6 +2759,10 @@
         '- Sustituí cualquier "para ti" por "para vos".\n' +
         '- El lenguaje debe ser directo, picante, contundente y con la terminología natural de gimnasio/entrenamiento en Argentina. Cero español neutro.\n\n' +
 
+        'REGLA ANTI-DETECCIÓN IA (SIN LA PALABRA CONCLUSIÓN):\n' +
+        '- Queda TERMINANTEMENTE PROHIBIDO usar la palabra "Conclusión" o "Conclusion" (en mayúsculas o minúsculas) en los títulos de los slides, posteos o textos. Denota de inmediato que el texto fue escrito por una IA.\n' +
+        '- En su lugar, el último slide o la sección de cierre de un post debe tener un título creativo y orientado a la acción (ej: "LLEVATELO A CASA", "APLICALO HOY", "EL PASO CLAVE", etc.). El cierre debe ser un llamado a la acción concreto o una reflexión directa del autor.\n\n' +
+
         'REGLA CRÍTICA: Los hashtags (#) van ÚNICAMENTE dentro del campo caption. PROHIBIDO poner hashtags en headline, sub, body, title, question o cualquier otro campo visual.\n' +
         'REGLA SOBRE EL CAPTION: En el campo "caption" del JSON, OBLIGATORIAMENTE tenés que generar y escribir el texto final del posteo acorde al tema. ¡NO COPIES las instrucciones en el JSON, generá el texto real para que el usuario lo pueda publicar!\n\n';
 
@@ -2788,7 +2792,7 @@
       if (STATE.type === 'carousel') {
         return ctx + 'Generá un carrusel de EXACTAMENTE 6 slides para Instagram de PG.\n' +
           'REGLA DE RIQUEZA Y RETENCIÓN EN SLIDES: Cada slide (cuerpo de texto) debe ser altamente informativo, científico y de gran valor educativo, pero al mismo tiempo ágil y fácil de leer para favorecer la retención del lector. El cuerpo de cada slide debe ocupar OBLIGATORIAMENTE entre 3 y 5 líneas de texto como máximo (aproximadamente 2-3 oraciones contundentes y bien redactadas). NUNCA generes bloques de texto aburridos o gigantes, ni tampoco oraciones de una sola línea sin contenido.\n' +
-          'Slide 1: hook potente que detenga el scroll. Slide 2: contexto científico y práctico. Slide 3: argumento central y evidencia. Slide 4: el giro inesperado o mito a romper. Slide 5: aplicación práctica concreta para el lector. Slide 6: conclusión contundente + CTA potente.\n' +
+          'Slide 1: hook potente que detenga el scroll. Slide 2: contexto científico y práctico. Slide 3: argumento central y evidencia. Slide 4: el giro inesperado o mito a romper. Slide 5: aplicación práctica concreta para el lector. Slide 6: cierre contundente con llamado a la acción (CTA) potente (NUNCA uses la palabra "Conclusión" como título o tema del slide, usá un cierre accionable o frase directa del autor).\n' +
           'NINGÚN slide debe contener hashtags, esos van solo en caption.\n' +
           'Responde SOLO con JSON válido, sin backticks:\n' +
           '{"slides":[' +
@@ -2797,7 +2801,7 @@
           '{"tag":"ARGUMENTO","title":"TÍTULO","body":"Argumento central y evidencia, redactada para ocupar entre 3 y 5 líneas de texto (2-3 oraciones contundentes).","bgHex":"#002D1A","isLast":false},' +
           '{"tag":"EL GIRO","title":"TÍTULO","body":"El mito a romper o giro inesperado, redactada para ocupar entre 3 y 5 líneas de texto (2-3 oraciones contundentes).","bgHex":"#001F14","isLast":false},' +
           '{"tag":"APLICACIÓN","title":"TÍTULO","body":"Aplicación práctica y concreta para el lector, redactada para ocupar entre 3 y 5 líneas de texto (2-3 oraciones contundentes).","bgHex":"#010B0E","isLast":false},' +
-          '{"tag":"CONCLUSIÓN","title":"TÍTULO","body":"Cierre directo y llamada a la acción potente, redactada para ocupar entre 3 y 5 líneas de texto (2-3 oraciones contundentes).","bgHex":"#001F14","isLast":true}' +
+          '{"tag":"CIERRE","title":"TÍTULO ACCIONABLE (NUNCA usar la palabra \'Conclusión\')","body":"Cierre directo y llamada a la acción potente, redactada para ocupar entre 3 y 5 líneas de texto (2-3 oraciones contundentes).","bgHex":"#001F14","isLast":true}' +
           '],"caption":"[ESCRIBÍ ACÁ EL CAPTION FINAL Y REAL. Aplicá las reglas de SEO, gancho potente, párrafos cortos y hashtags. Tiene que ser el texto listo para publicar acorde al tema]","image_search_term":"3-4 specific English keywords for Unsplash image search matching the topic of this carousel exactly, comma-separated (e.g. martial arts, boxing, kickboxing)"}';
       }
     }
